@@ -1,4 +1,4 @@
-﻿---
+---
 name: arete-build
 description: Build custom Arete stacks from Solana program IDLs using the Rust DSL. Covers entity definitions, field mappings, views, computed fields, PDA resolution, and deployment with the a4 CLI. Use when the user wants to create their own real-time data streaming stack.
 allowed-tools: Bash(a4:*) Bash(npx:arete-cli*) Bash(cargo:*)

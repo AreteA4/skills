@@ -1,4 +1,4 @@
-﻿---
+---
 name: arete
 description: Build with Arete, real-time Solana data streaming. Covers consuming existing streams and building custom stacks. Use when the user mentions Arete, real-time Solana data, on-chain streaming, ORE mining, or wants to consume/build data stacks.
 allowed-tools: Bash(a4:*) Bash(npx:arete-cli*)

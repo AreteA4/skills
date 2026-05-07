@@ -1,4 +1,4 @@
-﻿# TypeScript SDK API Reference
+# TypeScript SDK API Reference
 
 ## Connection
 

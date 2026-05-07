@@ -1,4 +1,4 @@
-﻿# React SDK API Reference
+# React SDK API Reference
 
 ## Components
 

@@ -1,4 +1,4 @@
-﻿# Rust SDK API Reference
+# Rust SDK API Reference
 
 ## Connection
 

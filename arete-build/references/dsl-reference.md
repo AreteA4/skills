@@ -1,4 +1,4 @@
-﻿# Arete DSL Reference
+# Arete DSL Reference
 
 ## Module Macro
 

@@ -1,4 +1,4 @@
-﻿# Arete Skills
+# Arete Skills
 
 Agent skills for building with [Arete](https://docs.arete.run), real-time Solana data streaming.
 

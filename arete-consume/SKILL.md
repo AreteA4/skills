@@ -1,4 +1,4 @@
-﻿---
+---
 name: arete-consume
 description: Consume Arete streams using TypeScript, React, or Rust SDKs. Covers connecting to stacks, subscribing to views, handling real-time updates, and using typed entity data. Use when the user wants to read or stream Solana data from deployed Arete stacks.
 allowed-tools: Bash(a4:*) Bash(npx:arete-cli*)

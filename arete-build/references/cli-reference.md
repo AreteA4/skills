@@ -1,4 +1,4 @@
-﻿# Arete CLI Reference
+# Arete CLI Reference
 
 All commands accept `--json` for machine-readable output and `--verbose` for debug info. Use `--json` by default in agent workflows.
 
