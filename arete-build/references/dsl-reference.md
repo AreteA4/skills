@@ -1,8 +1,8 @@
-# Hyperstack DSL Reference
+﻿# Arete DSL Reference
 
 ## Module Macro
 
-### `#[hyperstack(idl = ["path/to/idl.json"], proto = "path/to/file.proto", skip_decoders = false)]`
+### `#[arete(idl = ["path/to/idl.json"], proto = "path/to/file.proto", skip_decoders = false)]`
 Applied to a module. Points to the IDL files or Protobuf files used for mapping.
 - **idl**: Path(s) to IDL JSON file(s). Anchor and other framework formats supported. Use an array for multi-program stacks.
 - **proto**: Path(s) to `.proto` files for Protobuf-based streams.
@@ -11,7 +11,7 @@ Applied to a module. Points to the IDL files or Protobuf files used for mapping.
 ## Entity Attributes
 
 ### `#[entity(name = "CustomName")]`
-Marks a struct as a Hyperstack entity (state projection).
+Marks a struct as a Arete entity (state projection).
 - **name**: Custom name for the entity. Defaults to the struct name.
 
 ### `#[primary_key(field_path)]`
@@ -85,14 +85,14 @@ Defines a field derived from other fields using a Rust-like expression.
 
 ## Resolvers (`#[resolve]`)
 
-Resolvers enrich entities with data that doesn't live on-chain. Hyperstack fetches the external data server-side and delivers it to clients as part of the entity — no extra API calls needed from consumers.
+Resolvers enrich entities with data that doesn't live on-chain. Arete fetches the external data server-side and delivers it to clients as part of the entity — no extra API calls needed from consumers.
 
 ### Token Metadata Resolver
 
 Fetches SPL token metadata (name, symbol, decimals, logo) from the DAS API for any mint address. Triggered when the field type is `Option<TokenMetadata>`.
 
 ```rust
-use hyperstack::resolvers::TokenMetadata;
+use arete::resolvers::TokenMetadata;
 
 // Fixed address — use when the mint is known at build time
 #[resolve(address = "oreoU2P8bN6jkk3jbaiVxYnG1dCXcYxwhwyK9jSybcp")]
@@ -172,7 +172,7 @@ The `extract` path supports object keys and array indices (e.g., `"items.0.url"`
 ### `lookup_index(register_from = [(Instruction, accounts::pda, accounts::key), ...])`
 Preferred approach for cross-account PDA resolution. Add to a `#[map]` field that maps the secondary account's address.
 - Each tuple specifies: (instruction type, instruction account containing PDA, instruction account containing primary key).
-- Hyperstack registers the mapping and routes subsequent account updates to the correct entity.
+- Arete registers the mapping and routes subsequent account updates to the correct entity.
 
 ## Declarative Hooks (Advanced)
 

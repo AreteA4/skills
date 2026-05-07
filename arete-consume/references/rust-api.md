@@ -1,9 +1,9 @@
-# Rust SDK API Reference
+﻿# Rust SDK API Reference
 
 ## Connection
 
-### `HyperStack::<T>::connect()`
-Asynchronously connects to a Hyperstack WebSocket.
+### `Arete::<T>::connect()`
+Asynchronously connects to a Arete WebSocket.
 - **T**, The generated Stack type.
 - **Note**: The WebSocket URL is embedded in the stack definition (e.g., `ORE_STREAM_STACK`). No URL argument is needed.
 
@@ -20,28 +20,28 @@ The Rust SDK uses `tokio` for async execution and communication. Ensure you have
 Add to `Cargo.toml`:
 ```toml
 [dependencies]
-hyperstack-sdk = "0.5"
+arete-a4-sdk = "0.1.1"
 tokio = { version = "1", features = ["full"] }
 ```
 
 ## Example
 
 ```rust
-use hyperstack_sdk::prelude::*;
-use hyperstack_stacks::ore::{OreStack, OreRound};
+// MyStack comes from your stack definition crate (built with arete-build)
+use arete_sdk::prelude::*;
+use my_stack::MyStack;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let hs = HyperStack::<OreStack>::connect().await?;
+    let a4 = Arete::<MyStack>::connect().await?;
     
-    let mut stream = hs.views.ore_round.latest().listen().take(1);
-    while let Some(round) = stream.next().await {
-        println!("Round # {:?}", round.id.round_id);
-        println!("Motherlode: {:?}", round.state.motherlode);
+    let mut stream = a4.views.my_entity.latest().listen().take(1);
+    while let Some(item) = stream.next().await {
+        println!("Item: {:?}", item.id);
     }
     
     Ok(())
 }
 ```
 
-This example is from the [official Hyperstack documentation](https://docs.usehyperstack.com).
+This example is from the [official Arete documentation](https://docs.arete.run).

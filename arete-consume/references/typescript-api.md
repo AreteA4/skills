@@ -1,9 +1,9 @@
-# TypeScript SDK API Reference
+﻿# TypeScript SDK API Reference
 
 ## Connection
 
-### `HyperStack.connect(stack, options?)`
-Establishes a WebSocket connection to a Hyperstack stack.
+### `Arete.connect(stack, options?)`
+Establishes a WebSocket connection to a Arete stack.
 
 **Parameters:**
 - `stack` — Stack definition (includes URL and typed views)
@@ -11,7 +11,7 @@ Establishes a WebSocket connection to a Hyperstack stack.
 - `options.maxEntriesPerView` — Max entries per view before LRU eviction (default: 10000)
 - `options.validateFrames` — Validate incoming frames against Zod schemas (default: false)
 
-**Returns:** `Promise<HyperStack>`
+**Returns:** `Promise<Arete>`
 
 ## Streaming Methods
 
@@ -25,12 +25,12 @@ The simplest streaming method. Emits the full merged entity after each change.
 
 ```typescript
 // List view
-for await (const round of hs.views.OreRound.latest.use()) {
+for await (const round of a4.views.OreRound.latest.use()) {
   console.log("Round:", round.id.round_id);
 }
 
 // State view
-for await (const round of hs.views.OreRound.state.use(roundAddress)) {
+for await (const round of a4.views.OreRound.state.use(roundAddress)) {
   console.log("Round updated:", round.state.motherlode);
 }
 ```
@@ -42,7 +42,7 @@ Emits operation type (upsert/patch/delete) with data.
 **List mode:** `.watch(options?): AsyncIterable<Update<T>>`
 
 ```typescript
-for await (const update of hs.views.OreRound.latest.watch()) {
+for await (const update of a4.views.OreRound.latest.watch()) {
   switch (update.type) {
     case "upsert":
       console.log("Created or replaced:", update.data);
@@ -64,7 +64,7 @@ Emits before/after comparison for updates.
 **List mode:** `.watchRich(options?): AsyncIterable<RichUpdate<T>>`
 
 ```typescript
-for await (const update of hs.views.OreRound.latest.watchRich()) {
+for await (const update of a4.views.OreRound.latest.watchRich()) {
   switch (update.type) {
     case "created":
       console.log("New entity:", update.data);
@@ -89,10 +89,10 @@ Fetches the current state. Returns a promise that resolves when data is availabl
 
 ```typescript
 // List view
-const rounds = await hs.views.OreRound.latest.get();
+const rounds = await a4.views.OreRound.latest.get();
 
 // State view
-const round = await hs.views.OreRound.state.get(roundAddress);
+const round = await a4.views.OreRound.state.get(roundAddress);
 if (round) {
   console.log("Round:", round.id.round_id);
 }
@@ -105,7 +105,7 @@ Returns immediately with cached data. Returns `undefined` if data hasn't been lo
 **List mode:** `.getSync(): T[] | undefined`
 
 ```typescript
-const rounds = hs.views.OreRound.latest.getSync();
+const rounds = a4.views.OreRound.latest.getSync();
 if (rounds) {
   console.log(`Cached: ${rounds.length} rounds`);
 } else {
@@ -148,7 +148,7 @@ interface WatchOptions {
 
 ## Connection State
 
-### `hs.connectionState`
+### `a4.connectionState`
 Current connection state (read-only):
 
 - `'disconnected'` — Not connected
@@ -157,11 +157,11 @@ Current connection state (read-only):
 - `'reconnecting'` — Auto-reconnecting after failure
 - `'error'` — Connection failed
 
-### `hs.onConnectionStateChange(callback)`
+### `a4.onConnectionStateChange(callback)`
 Subscribe to connection state changes. Returns unsubscribe function.
 
 ```typescript
-const unsubscribe = hs.onConnectionStateChange((state) => {
+const unsubscribe = a4.onConnectionStateChange((state) => {
   console.log("Connection state:", state);
 });
 
@@ -169,23 +169,23 @@ const unsubscribe = hs.onConnectionStateChange((state) => {
 unsubscribe();
 ```
 
-### `hs.disconnect()`
+### `a4.disconnect()`
 Close the WebSocket connection gracefully.
 
 ```typescript
-await hs.disconnect();
+await a4.disconnect();
 ```
 
 ## Error Handling
 
 ```typescript
-import { HyperStack, HyperStackError } from "hyperstack-typescript";
+import { Arete, AreteError } from "@usearete/sdk";
 
 try {
-  const hs = await HyperStack.connect(ORE_STREAM_STACK);
+  const a4 = await Arete.connect(ORE_STREAM_STACK);
 } catch (error) {
-  if (error instanceof HyperStackError) {
-    console.error("Hyperstack error:", error.message);
+  if (error instanceof AreteError) {
+    console.error("Arete error:", error.message);
     console.error("Code:", error.code);
   } else {
     throw error;

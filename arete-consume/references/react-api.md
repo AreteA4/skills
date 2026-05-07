@@ -1,9 +1,9 @@
-# React SDK API Reference
+﻿# React SDK API Reference
 
 ## Components
 
-### `<HyperstackProvider>`
-Wraps your application to initialize the Hyperstack SDK and manage connections to stacks.
+### `<AreteProvider>`
+Wraps your application to initialize the Arete SDK and manage connections to stacks.
 
 **Props:**
 - **`autoConnect`** (boolean, default: `true`) — Auto-connect on mount
@@ -11,14 +11,14 @@ Wraps your application to initialize the Hyperstack SDK and manage connections t
 - **`websocketUrl`** (string, optional) — Override URL for all stacks (e.g., for local development)
 
 ```jsx
-<HyperstackProvider autoConnect={true} maxEntriesPerView={10000}>
+<AreteProvider autoConnect={true} maxEntriesPerView={10000}>
   <App />
-</HyperstackProvider>
+</AreteProvider>
 ```
 
 ## Hooks
 
-### `useHyperstack(stackDefinition, options?)`
+### `useArete(stackDefinition, options?)`
 Returns a typed interface to your stack's views and connection state.
 
 **Returns:**
@@ -27,13 +27,13 @@ Returns a typed interface to your stack's views and connection state.
 - **`isConnected`** — Boolean convenience flag (`true` when `connectionState === 'connected'`)
 - **`isLoading`** — `true` until client is ready
 - **`error`** — Connection error if any
-- **`client`** — Low-level `HyperStack` instance
+- **`client`** — Low-level `Arete` instance
 
 **Options:**
 - **`url`** (string, optional) — Override the stack's default WebSocket URL
 
 ```jsx
-const { views, connectionState, isConnected, isLoading, error, client } = useHyperstack(ORE_STREAM_STACK);
+const { views, connectionState, isConnected, isLoading, error, client } = useArete(ORE_STREAM_STACK);
 const { data: rounds, isLoading } = views.OreRound.list.use();
 ```
 
@@ -83,7 +83,7 @@ const { data: rounds, isLoading, error, refresh } = views.OreRound.list.use({
 **With schema filtering** — use the generated "Completed" variant to only receive fully-hydrated entities:
 
 ```jsx
-import { OreRoundCompletedSchema } from 'hyperstack-stacks/ore';
+import { OreRoundCompletedSchema } from './generated/ore-stack';
 
 const { data: rounds } = views.OreRound.latest.use({
   schema: OreRoundCompletedSchema,
@@ -146,7 +146,7 @@ const { data: topToken } = views.tokens.list.useOne({
 });
 
 // With schema — only resolves when a fully-hydrated entity exists
-import { OreRoundCompletedSchema } from 'hyperstack-stacks/ore';
+import { OreRoundCompletedSchema } from './generated/ore-stack';
 const { data: round } = views.OreRound.latest.useOne({
   schema: OreRoundCompletedSchema,
 });
@@ -188,7 +188,7 @@ The `connectionState` property returns one of five states:
 | `'error'` | Connection failed |
 
 ```jsx
-const { connectionState, isConnected } = useHyperstack(ORE_STREAM_STACK);
+const { connectionState, isConnected } = useArete(ORE_STREAM_STACK);
 
 const statusColors = {
   connected: "green",

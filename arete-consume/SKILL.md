@@ -1,26 +1,26 @@
----
-name: hyperstack-consume
-description: Consume Hyperstack streams using TypeScript, React, or Rust SDKs. Covers connecting to stacks, subscribing to views, handling real-time updates, and using typed entity data. Use when the user wants to read or stream Solana data from deployed Hyperstack stacks.
-allowed-tools: Bash(hs:*) Bash(npx:hyperstack-cli*)
+﻿---
+name: arete-consume
+description: Consume Arete streams using TypeScript, React, or Rust SDKs. Covers connecting to stacks, subscribing to views, handling real-time updates, and using typed entity data. Use when the user wants to read or stream Solana data from deployed Arete stacks.
+allowed-tools: Bash(a4:*) Bash(npx:arete-cli*)
 metadata:
   version: "0.5"
 ---
 
-# Consuming Hyperstack Streams
+# Consuming Arete Streams
 
 The workflow is: **discover the schema, understand what the user needs, plan the integration, write the code, verify it works.**
 
 ## 1. Prerequisites
 
-Required: Hyperstack CLI (`hs`) for schema discovery. Run once:
+Required: Arete CLI (`a4`) for schema discovery. Run once:
 
 ```bash
 OS="$(uname -s 2>/dev/null || echo Windows)"
 
-if command -v hs &>/dev/null; then
-  HS_CLI="hs"
-elif command -v hyperstack-cli &>/dev/null; then
-  HS_CLI="hyperstack-cli"
+if command -v a4 &>/dev/null; then
+  A4_CLI="a4"
+elif command -v arete-cli &>/dev/null; then
+  A4_CLI="arete-cli"
 else
   if ! command -v cargo &>/dev/null; then
     if [ "$OS" = "Darwin" ] || [ "$OS" = "Linux" ]; then
@@ -32,12 +32,12 @@ else
       export PATH="$USERPROFILE/.cargo/bin:$PATH"
     fi
   fi
-  cargo install hyperstack-cli
-  HS_CLI="hs"
+  cargo install a4-cli
+  A4_CLI="a4"
 fi
 ```
 
-> All examples use `hs`. If installed via cargo (`cargo install hyperstack-cli`) or npm (`npm install -g hyperstack-cli`).
+> All examples use `a4`. Cargo installs as `a4`, npm installs as `arete-cli`. You can also use `npx arete-cli` without installing.
 
 ## 2. Discover the Stack Schema
 
@@ -45,16 +45,16 @@ Do this before writing any code. Never guess entity names, field paths, or types
 
 ```bash
 # List all available stacks
-hs explore --json
+a4 explore --json
 
 # Get entities and views for a specific stack
-hs explore <stack-name> --json
+a4 explore <stack-name> --json
 
 # Get detailed fields for a specific entity
-hs explore <stack-name> <EntityName> --json
+a4 explore <stack-name> <EntityName> --json
 ```
 
-> **Custom stacks must be pushed first.** `hs explore` only works for stacks that have been pushed to Hyperstack. If the user is working with their own custom stack, they must run `hs stack push` before `hs explore` will return results. Public/global stacks (like `ore`) work immediately.
+> **Custom stacks must be pushed first.** `a4 explore` only works for stacks that have been pushed to Arete. If the user is working with their own custom stack, they must run `a4 stack push` before `a4 explore` will return results. Public/global stacks (like `ore`) work immediately.
 
 Review the output to build a mental model of:
 - Which **entities** exist (e.g., `OreRound`, `OreMiner`, `OreTreasury`)
@@ -146,24 +146,21 @@ Decide upfront whether to use schema filtering:
 ### TypeScript
 
 ```bash
-npm install hyperstack-typescript
-# For prepackaged stacks:
-npm install hyperstack-stacks
+npm install @usearete/sdk
 ```
 
-```typescript
-import { HyperStack } from 'hyperstack-typescript';
-import { ORE_STREAM_STACK } from 'hyperstack-stacks/ore';
-
-const hs = await HyperStack.connect(ORE_STREAM_STACK);
+Generate the typed SDK for the stack you want to use (use the stack name from `a4 explore --json`):
+```bash
+a4 sdk create typescript <stack-name>
+# Example: a4 sdk create typescript ore
 ```
 
-For custom stacks (after `hs sdk create typescript <stack-name>`):
+This creates `./generated/<stack-name>-stack.ts` with the stack definition and Zod schemas:
 ```typescript
-import { HyperStack } from 'hyperstack-typescript';
-import MY_STACK from './generated/my-stack';
+import { Arete } from '@usearete/sdk';
+import ORE_STREAM_STACK from './generated/ore-stack';
 
-const hs = await HyperStack.connect(MY_STACK);
+const a4 = await Arete.connect(ORE_STREAM_STACK);
 ```
 
 > Full connection options, error handling, and state management: see `references/typescript-api.md`
@@ -171,32 +168,37 @@ const hs = await HyperStack.connect(MY_STACK);
 ### React
 
 ```bash
-npm install hyperstack-react hyperstack-stacks
+npm install @usearete/react zustand
+```
+
+Generate the typed SDK first:
+```bash
+a4 sdk create typescript <stack-name>
 ```
 
 ```tsx
-import { HyperstackProvider } from 'hyperstack-react';
+import { AreteProvider } from '@usearete/react';
 
 function App() {
   return (
-    <HyperstackProvider>
+    <AreteProvider>
       <MyComponent />
-    </HyperstackProvider>
+    </AreteProvider>
   );
 }
 ```
 
 ```tsx
-import { useHyperstack } from 'hyperstack-react';
-import { ORE_STREAM_STACK } from 'hyperstack-stacks/ore';
+import { useArete } from '@usearete/react';
+import ORE_STREAM_STACK from './generated/ore-stack';
 
 function MyComponent() {
-  const { views, isConnected } = useHyperstack(ORE_STREAM_STACK);
+  const { views, isConnected } = useArete(ORE_STREAM_STACK);
   // views is now typed and ready to use
 }
 ```
 
-> `hyperstack-react` re-exports everything from `hyperstack-typescript`. You don't need both packages.
+> `@usearete/react` re-exports everything from `@usearete/sdk`. You don't need both packages.
 >
 > Full provider props, hook signatures, filtering operators, and conditional subscriptions: see `references/react-api.md`
 
@@ -204,15 +206,15 @@ function MyComponent() {
 
 ```toml
 [dependencies]
-hyperstack-sdk = "0.5"
+arete-a4-sdk = "0.1.1"
 tokio = { version = "1", features = ["full"] }
 ```
 
+For Rust, the stack type comes from the stack definition crate in your workspace (see `arete-build` skill for building stacks):
 ```rust
-use hyperstack_sdk::prelude::*;
-use hyperstack_stacks::ore::{OreStack, OreRound};
+use arete_sdk::prelude::*;
 
-let hs = HyperStack::<OreStack>::connect().await?;
+let a4 = Arete::<MyStack>::connect().await?;
 ```
 
 > Full Rust SDK API: see `references/rust-api.md`
@@ -224,12 +226,12 @@ Use the decisions from step 4 to write the minimal code. Examples below cover th
 **For the full API surface** (all methods, options, types, and edge cases), read the reference for the SDK you chose in step 4:
 - **TypeScript**: `references/typescript-api.md` — connection options, `.use()`/`.watch()`/`.watchRich()` signatures, one-shot reads, update types, error handling
 - **React**: `references/react-api.md` — provider props, hook return types, `where` filtering operators, `useOne()`, conditional subscriptions, connection state
-- **Rust**: `references/rust-api.md` — `HyperStack::<T>::connect()`, `.listen()`, tokio integration
+- **Rust**: `references/rust-api.md` — `Arete::<T>::connect()`, `.listen()`, tokio integration
 
 ### Streaming with `.use()` (TypeScript)
 
 ```typescript
-for await (const round of hs.views.OreRound.latest.use()) {
+for await (const round of a4.views.OreRound.latest.use()) {
   console.log("Round:", round.id.round_id);
   console.log("Motherlode:", round.state.motherlode);
 }
@@ -239,7 +241,7 @@ for await (const round of hs.views.OreRound.latest.use()) {
 
 ```tsx
 function MiningDashboard() {
-  const { views } = useHyperstack(ORE_STREAM_STACK);
+  const { views } = useArete(ORE_STREAM_STACK);
   const { data: rounds, isLoading } = views.OreRound.latest.use();
 
   if (isLoading) return <p>Connecting...</p>;
@@ -259,16 +261,16 @@ function MiningDashboard() {
 ### One-shot read (TypeScript)
 
 ```typescript
-const rounds = await hs.views.OreRound.list.get();
-const round = await hs.views.OreRound.state.get(roundAddress);
+const rounds = await a4.views.OreRound.list.get();
+const round = await a4.views.OreRound.state.get(roundAddress);
 ```
 
 ### Multi-entity correlation
 
 ```typescript
 const [rounds, miners] = await Promise.all([
-  hs.views.OreRound.latest.get(),
-  hs.views.OreMiner.list.get(),
+  a4.views.OreRound.latest.get(),
+  a4.views.OreMiner.list.get(),
 ]);
 
 const currentRoundId = rounds.values().next().value?.id?.round_id;
@@ -280,10 +282,10 @@ const minersInRound = [...miners.values()].filter(
 ### Schema validation
 
 ```typescript
-import { OreRoundCompletedSchema } from 'hyperstack-stacks/ore';
+import { OreRoundCompletedSchema } from './generated/ore-stack';
 
 // Only receive fully-hydrated entities — all fields guaranteed non-null
-for await (const round of hs.views.OreRound.latest.use({
+for await (const round of a4.views.OreRound.latest.use({
   schema: OreRoundCompletedSchema,
 })) {
   console.log(round.id.round_id, round.state.motherlode);
@@ -300,7 +302,7 @@ const TradableTokenSchema = z.object({
   reserves: z.object({ current_price_sol: z.number() }),
 });
 
-for await (const token of hs.views.PumpfunToken.list.use({
+for await (const token of a4.views.PumpfunToken.list.use({
   schema: TradableTokenSchema,
 })) {
   console.log(token.id.mint, token.reserves.current_price_sol);
@@ -311,7 +313,7 @@ for await (const token of hs.views.PumpfunToken.list.use({
 
 Break to stop streaming:
 ```typescript
-for await (const round of hs.views.OreRound.latest.use()) {
+for await (const round of a4.views.OreRound.latest.use()) {
   if ((round.state.motherlode ?? 0) > 1_000_000_000) break;
 }
 ```
@@ -322,7 +324,7 @@ const controller = new AbortController();
 setTimeout(() => controller.abort(), 30_000);
 
 try {
-  for await (const round of hs.views.OreRound.latest.use()) {
+  for await (const round of a4.views.OreRound.latest.use()) {
     if (controller.signal.aborted) break;
     console.log("Round:", round.id.round_id);
   }
@@ -334,9 +336,9 @@ try {
 ### Generating SDK types for custom stacks
 
 ```bash
-hs sdk create typescript <stack-name>
+a4 sdk create typescript <stack-name>
 # If the stack was shared via URL:
-hs sdk create typescript <stack-name> --url wss://their-stack.stack.usehyperstack.com
+a4 sdk create typescript <stack-name> --url wss://their-stack.stack.arete.run
 ```
 
 ## 7. Verify
@@ -350,9 +352,9 @@ After implementation, confirm everything works:
 
 ## Common Mistakes
 
-- **Guessing entity names or field paths.** Always run `hs explore <stack> --json` first. Training data may be outdated.
+- **Guessing entity names or field paths.** Always run `a4 explore <stack> --json` first. Training data may be outdated.
 - **Confusing `.use()` with `.watch()`.** `.use()` emits the merged entity (`T`). `.watch()` emits the operation type (`upsert`/`patch`/`delete`).
 - **Forgetting React hooks return `{ data, isLoading, error }`.** Always destructure — don't treat the hook result as raw data.
 - **Misusing `skip` as field names.** `WatchOptions.skip` is a number for pagination (`{ skip: 20, take: 10 }`), not field exclusion.
-- **Not pushing custom stacks.** `hs explore` only works after `hs stack push`. Custom stacks won't appear until pushed.
+- **Not pushing custom stacks.** `a4 explore` only works after `a4 stack push`. Custom stacks won't appear until pushed.
 - **Not reading the API reference for your SDK.** The examples in step 6 are starting points. For complete method signatures, option types, filtering operators, error handling, and edge cases, read the relevant reference: `references/typescript-api.md`, `references/react-api.md`, or `references/rust-api.md`.
