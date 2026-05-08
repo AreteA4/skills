@@ -22,11 +22,10 @@ These skills teach AI coding agents how to use Arete. They reference the CLI for
 
 ### CLI Installation
 
-The CLI binary name depends on how you install it:
-
 | Install Method | Command | Binary Name |
 |---------------|---------|-------------|
-| Cargo (recommended) | `cargo install a4-cli` | `a4` |
-| npm | `npm install -g arete-cli` | `arete-cli` |
+| Cargo | `cargo install a4-cli` | `a4` |
+| npm | `npm install -g @usearete/a4` | `a4` |
+| npx (no install) | `npx @usearete/a4 <command>` | — |
 
-All examples use `a4` (the Cargo binary). If you installed via npm, use `arete-cli` instead, or run without installing via `npx arete-cli`.
+All examples use `a4`.

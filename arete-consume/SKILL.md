@@ -1,7 +1,7 @@
 ---
 name: arete-consume
 description: Consume Arete streams using TypeScript, React, or Rust SDKs. Covers connecting to stacks, subscribing to views, handling real-time updates, and using typed entity data. Use when the user wants to read or stream Solana data from deployed Arete stacks.
-allowed-tools: Bash(a4:*) Bash(npx:arete-cli*)
+allowed-tools: Bash(a4:*) Bash(npx:@usearete/a4*)
 metadata:
   version: "0.5"
 ---
@@ -37,7 +37,7 @@ else
 fi
 ```
 
-> All examples use `a4`. Cargo installs as `a4`, npm installs as `arete-cli`. You can also use `npx arete-cli` without installing.
+> All examples use `a4`. Cargo installs as `a4`, npm installs as `a4`. You can also use `npx @usearete/a4` without installing.
 
 ## 2. Discover the Stack Schema
 

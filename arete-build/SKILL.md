@@ -1,7 +1,7 @@
 ---
 name: arete-build
 description: Build custom Arete stacks from Solana program IDLs using the Rust DSL. Covers entity definitions, field mappings, views, computed fields, PDA resolution, and deployment with the a4 CLI. Use when the user wants to create their own real-time data streaming stack.
-allowed-tools: Bash(a4:*) Bash(npx:arete-cli*) Bash(cargo:*)
+allowed-tools: Bash(a4:*) Bash(npx:@usearete/a4*) Bash(cargo:*)
 ---
 
 # Building Arete Stacks
@@ -36,7 +36,7 @@ else
 fi
 ```
 
-> All examples use `a4`. Cargo installs as `a4`, npm installs as `arete-cli`. You can also use `npx arete-cli` without installing.
+> All examples use `a4`. Cargo installs as `a4`, npm installs as `a4`. You can also use `npx @usearete/a4` without installing.
 
 ## 2. Get the IDL
 

@@ -1,7 +1,7 @@
 ---
 name: arete
 description: Build with Arete, real-time Solana data streaming. Covers consuming existing streams and building custom stacks. Use when the user mentions Arete, real-time Solana data, on-chain streaming, ORE mining, or wants to consume/build data stacks.
-allowed-tools: Bash(a4:*) Bash(npx:arete-cli*)
+allowed-tools: Bash(a4:*) Bash(npx:@usearete/a4*)
 metadata:
   version: "0.5"
 ---
@@ -30,9 +30,9 @@ Determine the user's intent, then load the appropriate sub-skill. Both sub-skill
 
 ## Quick Reference
 
-Scaffold a new app: `a4 create my-app` (prompts for template) or `npx arete-cli create my-app`
+Scaffold a new app: `a4 create my-app` (prompts for template) or `npx @usearete/a4 create my-app`
 
-CLI install: `cargo install a4-cli` (binary: `a4`) or `npm install -g arete-cli` (binary: `arete-cli`). Or use without installing: `npx arete-cli`. Prefer `a4` (Cargo).
+CLI install: `cargo install a4-cli` (binary: `a4`) or `npm install -g @usearete/a4` (binary: `arete-cli`). Or use without installing: `npx @usearete/a4`. Prefer `a4` (Cargo).
 
 Discover available stacks: `a4 explore --json`
 
