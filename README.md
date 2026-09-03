@@ -24,8 +24,9 @@ These skills teach AI coding agents how to use Arete. They reference the CLI for
 
 | Install Method | Command | Binary Name |
 |---------------|---------|-------------|
-| Cargo | `cargo install a4-cli` | `a4` |
-| npm | `npm install -g @usearete/a4` | `a4` |
+| macOS / Linux | `curl -fsSL https://arete.run/install.sh \| sh` | `a4` |
+| Windows PowerShell | `irm https://arete.run/install.ps1 \| iex` | `a4` |
+| npm | `npx @usearete/a4 install` | `a4` |
 | npx (no install) | `npx @usearete/a4 <command>` | — |
 
-All examples use `a4`.
+All examples use `a4`. Check readiness with `a4 doctor --json` (exit 0 = ready), set up a project with `a4 init -y` (installs these skills and the `a4 mcp` server config for every detected agent), and update with `a4 self update`. Do not `cargo install a4-cli`.

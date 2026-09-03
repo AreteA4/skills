@@ -10,7 +10,7 @@ A stack watches Solana programs and maps on-chain state into structured, streama
 
 ## 1. Prerequisites
 
-Required: Rust toolchain, Arete CLI (`a4`), an IDL JSON file. Run once:
+Required: Rust toolchain (building stacks compiles Rust), Arete CLI (`a4`), an IDL JSON file. Run once:
 
 ```bash
 OS="$(uname -s 2>/dev/null || echo Windows)"
@@ -25,18 +25,21 @@ if ! command -v cargo &>/dev/null; then
     export PATH="$USERPROFILE/.cargo/bin:$PATH"
   fi
 fi
-
-if command -v a4 &>/dev/null; then
-  A4_CLI="a4"
-elif command -v arete-cli &>/dev/null; then
-  A4_CLI="arete-cli"
-else
-  cargo install a4-cli
-  A4_CLI="a4"
-fi
 ```
 
-> All examples use `a4`. Cargo installs as `a4`, npm installs as `a4`. You can also use `npx @usearete/a4` without installing.
+The CLI is a prebuilt binary; do not build it with Cargo:
+
+```bash
+if ! command -v a4 >/dev/null 2>&1; then
+  curl -fsSL https://arete.run/install.sh | sh        # macOS / Linux
+  # Windows PowerShell: irm https://arete.run/install.ps1 | iex
+  # npm alternative:    npx @usearete/a4 install
+  export PATH="$HOME/.local/bin:$PATH"                # the installer prints A4_BIN=<path>; use it if a4 is still not found
+fi
+a4 doctor --json    # exit 0 = ready; every failing check carries a `fix` command
+```
+
+> Never `cargo install a4-cli`. Update with `a4 self update`. If `doctor` warns about missing skills or MCP config, run `a4 init -y` (or `a4 doctor --fix`). All examples use `a4`; `npx @usearete/a4 <args>` runs the same binary.
 
 ## 2. Get the IDL
 

@@ -3,7 +3,7 @@ name: arete-consume
 description: Consume Arete streams using TypeScript, React, or Rust SDKs. Covers connecting to stacks, subscribing to views, handling real-time updates, and using typed entity data. Use when the user wants to read or stream Solana data from deployed Arete stacks.
 allowed-tools: Bash(a4:*) Bash(npx:@usearete/a4*)
 metadata:
-  version: "0.5"
+  version: "0.6"
 ---
 
 # Consuming Arete Streams
@@ -12,32 +12,19 @@ The workflow is: **discover the schema, understand what the user needs, plan the
 
 ## 1. Prerequisites
 
-Required: Arete CLI (`a4`) for schema discovery. Run once:
+Required: Arete CLI (`a4`) for schema discovery. Check once:
 
 ```bash
-OS="$(uname -s 2>/dev/null || echo Windows)"
-
-if command -v a4 &>/dev/null; then
-  A4_CLI="a4"
-elif command -v arete-cli &>/dev/null; then
-  A4_CLI="arete-cli"
-else
-  if ! command -v cargo &>/dev/null; then
-    if [ "$OS" = "Darwin" ] || [ "$OS" = "Linux" ]; then
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-      source "$HOME/.cargo/env"
-    else
-      curl -sSLo /tmp/rustup-init.exe https://win.rustup.rs/x86_64
-      /tmp/rustup-init.exe -y
-      export PATH="$USERPROFILE/.cargo/bin:$PATH"
-    fi
-  fi
-  cargo install a4-cli
-  A4_CLI="a4"
+if ! command -v a4 >/dev/null 2>&1; then
+  curl -fsSL https://arete.run/install.sh | sh        # macOS / Linux
+  # Windows PowerShell: irm https://arete.run/install.ps1 | iex
+  # npm alternative:    npx @usearete/a4 install
+  export PATH="$HOME/.local/bin:$PATH"                # the installer prints A4_BIN=<path>; use it if a4 is still not found
 fi
+a4 doctor --json    # exit 0 = ready; every failing check carries a `fix` command
 ```
 
-> All examples use `a4`. Cargo installs as `a4`, npm installs as `a4`. You can also use `npx @usearete/a4` without installing.
+> Never `cargo install a4-cli`. Update with `a4 self update`. If `doctor` warns about missing skills or MCP config, run `a4 init -y` (or `a4 doctor --fix`). All examples use `a4`; `npx @usearete/a4 <args>` runs the same binary.
 
 ## 2. Discover the Stack Schema
 
