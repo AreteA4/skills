@@ -1,0 +1,27 @@
+name: Drift
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cli-drift:
+    name: CLI citations and compatibility floors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Uses npx @usearete/a4@latest: the wrapper bootstraps the signed CLI
+      # binary from the latest GitHub release, so this job also exercises the
+      # public install path end to end.
+      - name: Check CLI citations against the released a4
+        run: node scripts/check-cli-drift.mjs
