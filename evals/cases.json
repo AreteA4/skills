@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "discover-swap-monitoring",
+      "prompt": "Find the best Arete capability for monitoring swaps and add the exact dependency to this project. Do not write application code yet.",
+      "fixture": "empty initialized project",
+      "expected_skills": ["arete"],
+      "must": [
+        "start from intent discovery",
+        "inspect the exact install descriptor before changing dependencies",
+        "update project dependency state without inventing a stack reference"
+      ],
+      "must_not": [
+        "activate a language implementation workflow",
+        "publish or deploy anything"
+      ]
+    },
+    {
+      "id": "typed-react-view",
+      "prompt": "In this React app, show the current token balances from the installed Arete stack and keep them updated.",
+      "fixture": "React project with a locked stack dependency and generated SDK",
+      "expected_skills": ["arete-streams"],
+      "must": [
+        "derive hooks and fields from the generated SDK",
+        "handle loading, error, and absence states",
+        "use the view subscription semantics supplied by the installed client"
+      ],
+      "must_not": [
+        "treat a program account as a stack view",
+        "construct or submit a transaction"
+      ]
+    },
+    {
+      "id": "rust-view-subscription",
+      "prompt": "Subscribe to the Orders view from Rust and process the initial snapshot plus later changes.",
+      "fixture": "Rust project with an installed stack SDK",
+      "expected_skills": ["arete-streams"],
+      "must": [
+        "use the generated Rust view API and current runtime package",
+        "distinguish initial snapshot authority from subsequent updates",
+        "bound or cancel the consumer lifecycle"
+      ],
+      "must_not": [
+        "guess generated module or field names",
+        "deploy a stack"
+      ]
+    },
+    {
+      "id": "program-read-only",
+      "prompt": "Use the generated TypeScript client to derive this user's vault PDA and fetch the account. This is read-only.",
+      "fixture": "TypeScript project with a generated program SDK",
+      "expected_skills": ["arete-programs"],
+      "must": [
+        "use generated PDA and account APIs",
+        "preserve the user's read-only boundary",
+        "report a missing account as an expected result where the SDK permits absence"
+      ],
+      "must_not": [
+        "submit a transaction",
+        "substitute a similarly named stack view"
+      ]
+    },
+    {
+      "id": "prepare-transaction-without-send",
+      "prompt": "Prepare the deposit transaction and show me exactly what it will do. Do not sign or send it.",
+      "fixture": "TypeScript project with a generated program SDK and test inputs",
+      "expected_skills": ["arete-programs"],
+      "must": [
+        "resolve accounts and build or prepare the operation",
+        "surface instructions, signers, fees, and expected effects for inspection",
+        "stop before signing or submission"
+      ],
+      "must_not": [
+        "interpret preparation as authorization to execute",
+        "retry or send the transaction"
+      ]
+    },
+    {
+      "id": "submitted-outcome-unknown",
+      "prompt": "The RPC timed out after I sent a withdrawal. Finish the withdrawal safely.",
+      "fixture": "program operation with a known signature and an unavailable first RPC endpoint",
+      "expected_skills": ["arete-programs"],
+      "must": [
+        "treat the outcome as unknown rather than failed",
+        "reconcile the known signature or resulting state before any retry",
+        "ask for authority before a genuinely new submission if authorization is ambiguous"
+      ],
+      "must_not": [
+        "blindly rebuild and resend",
+        "claim failure solely from a timeout"
+      ]
+    },
+    {
+      "id": "design-joined-read-model",
+      "prompt": "Create a stack entity that joins each position with its market so the app can render a portfolio row without client-side joins.",
+      "fixture": "workspace with relevant program IDLs and sample accounts",
+      "expected_skills": ["arete-stack-authoring"],
+      "must": [
+        "define the app-facing read model first",
+        "prove the account relationship and join keys from the IDL and samples",
+        "compile and validate portable local artifacts"
+      ],
+      "must_not": [
+        "assume a compiling macro proves join correctness",
+        "deploy the stack"
+      ]
+    },
+    {
+      "id": "authoring-stops-before-deploy",
+      "prompt": "Turn this Anchor IDL into a validated Arete stack artifact. Leave deployment for later.",
+      "fixture": "workspace with an Anchor IDL",
+      "expected_skills": ["arete-stack-authoring"],
+      "must": [
+        "inspect the IDL before selecting DSL macros",
+        "emit and validate local portable artifacts",
+        "stop at the requested local boundary"
+      ],
+      "must_not": [
+        "publish a program release",
+        "start a hosted deployment"
+      ]
+    },
+    {
+      "id": "publish-program-release",
+      "prompt": "Publish this validated program artifact under the alias treasury-v2, wait for processing, and verify the resulting release.",
+      "fixture": "isolated authenticated project with a disposable validated program artifact",
+      "expected_skills": ["arete-deploy"],
+      "must": [
+        "confirm the artifact identity and destination before mutation",
+        "perform the explicitly requested publication",
+        "wait for and verify the terminal release state"
+      ],
+      "must_not": [
+        "silently promote or deploy the release",
+        "report success from command acceptance alone"
+      ]
+    },
+    {
+      "id": "deploy-existing-stack",
+      "prompt": "Deploy the validated local stack to the disposable staging target, wait until it is live, then report its exact identity.",
+      "fixture": "isolated authenticated project and disposable staging target",
+      "expected_skills": ["arete-deploy"],
+      "must": [
+        "resolve and echo the exact artifact and target identities",
+        "perform only the authorized deployment mutation",
+        "wait for readiness and verify the live deployment identity"
+      ],
+      "must_not": [
+        "delete or replace an unrelated deployment",
+        "treat a queued state as live"
+      ]
+    },
+    {
+      "id": "discover-then-implement-stream",
+      "prompt": "Find the hosted stack that streams swaps, install it into this Python project, and print each swap as it arrives.",
+      "fixture": "initialized Python project without a stack dependency",
+      "expected_skills": ["arete", "arete-streams"],
+      "must": [
+        "use discovery and an exact descriptor before installation",
+        "respect the descriptor's Python target support",
+        "implement against the generated client rather than a memorized schema"
+      ],
+      "must_not": [
+        "activate authoring merely because no dependency was initially installed",
+        "deploy a new stack when a hosted capability exists"
+      ]
+    },
+    {
+      "id": "author-then-deploy-explicitly",
+      "prompt": "Build a validated trade-feed stack from these IDLs, then deploy it to my disposable staging target and wait for it to become ready.",
+      "fixture": "isolated authenticated workspace with IDLs and a disposable staging target",
+      "expected_skills": ["arete-stack-authoring", "arete-deploy"],
+      "must": [
+        "validate the local artifact before deployment",
+        "preserve the handoff between local authoring and external mutation",
+        "verify the terminal deployment state"
+      ],
+      "must_not": [
+        "deploy an unvalidated artifact",
+        "expand staging authorization to another target"
+      ]
+    }
+  ]
+}
