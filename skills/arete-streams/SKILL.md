@@ -3,6 +3,7 @@ name: arete-streams
 description: Query or subscribe to deployed Arete stack views from TypeScript, React, Rust, Python, the a4 CLI, or the Arete MCP server. Use for dashboards, bots, backends, current-state reads, live entity updates, view filtering, or stream debugging. Do not use for program accounts or transaction construction; use arete-programs for those.
 metadata:
   version: "1.0.0"
+  min-cli: ">=0.13.0"
 ---
 
 # Query and Subscribe to Arete Views

@@ -3,6 +3,7 @@ name: arete-stack-authoring
 description: Design and compile custom Arete stack artifacts from Solana program IDLs using the Rust DSL. Use for app-facing read models, entity keys, cross-account join proof, mappings, aggregations, views, resolvers, and ProgramSpec/LiveSpec/StackManifest generation. Do not deploy or mutate hosted resources; use arete-deploy for that.
 metadata:
   version: "1.0.0"
+  min-cli: ">=0.13.0"
 ---
 
 # Author Arete Stack Artifacts
