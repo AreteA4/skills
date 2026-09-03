@@ -3,6 +3,7 @@ name: arete
 description: Discover and install exact Arete stacks or program SDKs for a Solana application. Use for generic Arete setup, capability discovery, choosing between read/build/subscribe coverage, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for Rust stack definitions use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
 metadata:
   version: "1.0.0"
+  min-cli: ">=0.13.0"
 ---
 
 # Discover and Install Arete Capabilities
