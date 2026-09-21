@@ -2,8 +2,8 @@
 name: arete-programs
 description: Use generated Arete program SDKs to read accounts, derive PDAs, build instructions, prepare semantic operations, inspect transactions, or execute them through a wallet. Use for Solana protocol integrations and transaction workflows. Do not use for stack views or subscriptions; use arete-streams. Do not publish a program or deploy a stack; use arete-deploy.
 metadata:
-  version: "1.0.0"
-  min-cli: ">=0.13.0"
+  version: "1.1.0"
+  min-cli: ">=0.20.4"
 ---
 
 # Build with Arete Program SDKs
@@ -15,25 +15,34 @@ Use the exact generated program surface. Do not infer instruction arguments, acc
 Start from intent when the protocol or operation is not already pinned:
 
 ```bash
-a4 know search --query "<intent>" --json
-a4 know program <program-slug> --section surface --json
+a4 explore catalog --query "<intent>" --kind program --json
+a4 explore catalog program <program-slug> --json
 ```
 
-Inspect reviewed instruction and account semantics as needed:
+The exact catalog descriptor determines program identity, available `read` and
+`build` modes, SDK targets, Program Read delivery, authentication, and the
+install command. Do not infer a missing delivery mode from catalog knowledge.
+
+Inspect reviewed operation, instruction, and account semantics as needed:
 
 ```bash
+a4 know program <program-slug> --section surface --json
 a4 know program <program-slug> --section instructions --json
 a4 know program <program-slug> --section accounts --json
 ```
 
-Then inspect the exact standalone or stack-bundled descriptor:
+If the project already pins a direct program or stack reference, inspect it
+through the compatibility descriptor form:
 
 ```bash
 a4 explore program <program-ref> --json
 a4 explore stack <stack-ref> --json
 ```
 
-Use `surface` for semantic operation names and generated bindings. Use `explore` for exact account/instruction shapes, identities, SDK targets, Program Read availability, authentication, and installation. A missing curated recipe means “not documented,” not automatically “unsupported.”
+Use `surface` for semantic operation names and generated bindings. Use the
+descriptor for exact account and instruction shapes, identities, SDK targets,
+Program Read availability, authentication, and installation. A missing curated
+recipe means “not documented,” not automatically “unsupported.”
 
 ## Install and Inspect Generated Code
 
