@@ -2,8 +2,8 @@
 name: arete
 description: Discover and install exact Arete stacks or program SDKs for a Solana application. Use for generic Arete setup, capability discovery, choosing between read/build/subscribe coverage, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for Rust stack definitions use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
 metadata:
-  version: "1.0.0"
-  min-cli: ">=0.13.0"
+  version: "1.1.0"
+  min-cli: ">=0.20.4"
 ---
 
 # Discover and Install Arete Capabilities
@@ -37,43 +37,60 @@ Do not run setup on every Arete task. A healthy project, a usable generated depe
 Start from the user's intent, not from a remembered public stack:
 
 ```bash
-a4 know search --query "<intent>" --json
+a4 explore catalog --query "<intent>" --json
+a4 explore catalog --vocabulary --json
 ```
 
-Read the result's coverage flags. Continue with only the relevant branch:
+Use `--concept` or `--category` only with slugs returned by the vocabulary.
+Narrow by `--kind program|stack`, `--mode read|build|subscribe`, and
+`--target typescript|rust|python` when the request already determines those
+constraints.
+
+Read each result's coverage modes. Continue with only the relevant branch:
 
 - `subscribe`: inspect the named stack, then use `arete-streams` for application code.
 - `read` or `build`: inspect the program surface, then use `arete-programs`.
-- No suitable hosted capability and the user wants a custom feed: use `arete-stack-authoring`.
+- No suitable hosted capability and the user wants a custom feed: specify the missing read model, then use `arete-stack-authoring`.
 - Publication or hosted lifecycle work: use `arete-deploy`.
 
-When the knowledge layer is unavailable or authentication is not configured, use descriptor discovery directly:
+Inspect the selected catalog result as an exact install descriptor:
 
 ```bash
-a4 explore --json
-a4 explore programs --json
+a4 explore catalog stack <stack-slug> --json
+a4 explore catalog program <program-slug> --json
 ```
 
-For a candidate, inspect its exact install descriptor:
+If the user or project already supplies a direct reference, these compatibility
+forms resolve the same descriptor contract:
 
 ```bash
 a4 explore stack <stack-ref> --json
 a4 explore program <program-ref> --json
 ```
 
-For program semantics and callable operation names, prefer:
+Catalog contents and capability delivery can change. Do not maintain a static
+list of public programs or stacks, infer an endpoint, or treat a search result
+as proof that an unreported mode is available.
+
+For reviewed protocol context and callable operation semantics, use the
+knowledge layer when available:
 
 ```bash
+a4 know search --query "<intent>" --json
 a4 know program <program-slug> --section surface --json
 a4 know program <program-slug> --section instructions --json
 a4 know program <program-slug> --section accounts --json
 ```
 
-Treat a descriptor refusal as “not currently installable.” Do not fall back to an arbitrary latest IDL, AST, deployment, or release.
+Return to the exact catalog descriptor before installation. Treat a descriptor
+refusal as “not currently installable.” Do not fall back to an arbitrary latest
+IDL, AST, deployment, or release.
 
 ## Install the Exact Dependency
 
-Prefer the `installCommand` returned by `a4 explore`. In a project, a saved dependency updates `arete.toml`, resolves `arete.lock`, and generates provenance-owned output:
+Prefer the `installCommand` returned by the exact descriptor. In a project, a
+saved dependency updates `arete.toml`, resolves `arete.lock`, and generates
+provenance-owned output:
 
 ```bash
 a4 install stack <stack-ref> --ts

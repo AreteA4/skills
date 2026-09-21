@@ -7,7 +7,7 @@
       "fixture": "empty initialized project",
       "expected_skills": ["arete"],
       "must": [
-        "start from intent discovery",
+        "search the catalog by intent and relevant capability mode",
         "inspect the exact install descriptor before changing dependencies",
         "update project dependency state without inventing a stack reference"
       ],
@@ -157,7 +157,7 @@
       "fixture": "initialized Python project without a stack dependency",
       "expected_skills": ["arete", "arete-streams"],
       "must": [
-        "use discovery and an exact descriptor before installation",
+        "search the catalog for a subscribe-ready stack and inspect its exact descriptor before installation",
         "respect the descriptor's Python target support",
         "implement against the generated client rather than a memorized schema"
       ],

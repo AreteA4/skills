@@ -2,8 +2,8 @@
 name: arete-streams
 description: Query or subscribe to deployed Arete stack views from TypeScript, React, Rust, Python, the a4 CLI, or the Arete MCP server. Use for dashboards, bots, backends, current-state reads, live entity updates, view filtering, or stream debugging. Do not use for program accounts or transaction construction; use arete-programs for those.
 metadata:
-  version: "1.0.0"
-  min-cli: ">=0.13.0"
+  version: "1.1.0"
+  min-cli: ">=0.20.4"
 ---
 
 # Query and Subscribe to Arete Views
@@ -12,7 +12,17 @@ Implement against an exact generated stack binding. Never infer entity names, vi
 
 ## Resolve the Exact Surface
 
-If the environment may not be ready, run `a4 doctor --json` and follow any required fix. Then inspect the descriptor and relevant entity before writing code:
+If the environment may not be ready, run `a4 doctor --json` and follow any
+required fix. When a stack is not already pinned, discover subscribe-ready
+stacks by intent and inspect the exact result:
+
+```bash
+a4 explore catalog --query "<intent>" --kind stack --mode subscribe --json
+a4 explore catalog stack <stack-slug> --json
+```
+
+Then inspect the descriptor and relevant entity before writing code. A direct
+reference supplied by the user or project can use the compatibility form:
 
 ```bash
 a4 explore stack <stack-ref> --json

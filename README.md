@@ -43,7 +43,9 @@ The skills deliberately avoid duplicating complete CLI and SDK manuals. Agents s
 3. The Arete documentation MCP or [docs.arete.run](https://docs.arete.run).
 4. The workflow and safety guidance in these skills.
 
-The skills target the descriptor-backed Arete CLI surface with `a4 doctor`, `a4 know`, `a4 explore`, and `a4 install`.
+The skills target the catalog-first, descriptor-backed Arete CLI surface with
+`a4 doctor`, `a4 explore catalog`, exact descriptors, `a4 know`, and
+`a4 install`.
 
 Routing and safety regressions are captured as observable behaviors in
 [`evals/cases.json`](evals/cases.json).
