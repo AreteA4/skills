@@ -55,6 +55,7 @@ a4 up <alias>
 
   `endpoints` has one entry per LiveSpec alias. For a definition-only stack it replaces the SDK's empty placeholders. For a hosted stack it replaces the managed stream endpoints, while the managed chain and transaction gateway stays. Removing the table and running `a4 install` returns the SDK to the stack's own endpoints.
 - If recording or reinstalling fails, the deployment still stands and `arete.toml` is left as it was. Report the failure; do not hand-write endpoints the CLI did not return.
+- After `a4 update` or a new version requirement moves the stack to a different StackManifest, `a4 install` notes that the recorded deployment still serves the previous one. Redeploy with `a4 up <alias>`, which needs the user's authorization.
 - `--branch`, `--preview`, and `--json` deployments never edit `arete.toml`. Pass their endpoint to the client explicitly when the user wants the SDK to read one.
 
 ## Inspect History
