@@ -180,6 +180,23 @@
         "deploy an unvalidated artifact",
         "expand staging authorization to another target"
       ]
+    },
+    {
+      "id": "deploy-installed-definition-only-stack",
+      "prompt": "Install the stack for this program and deploy it to my account so the app can stream from it.",
+      "fixture": "isolated authenticated project; the catalog stack is definition-only (no subscribe coverage)",
+      "expected_skills": ["arete", "arete-deploy"],
+      "must": [
+        "recognize from the descriptor that no hosted stream exists",
+        "install the exact stack before deploying it by its dependency alias",
+        "dry-run the installed-stack deployment before the live deploy",
+        "verify arete.toml records the returned endpoints and the regenerated SDK uses them"
+      ],
+      "must_not": [
+        "invent or hand-write an endpoint URL",
+        "hand-edit the generated SDK",
+        "deploy without the authorization the prompt grants"
+      ]
     }
   ]
 }

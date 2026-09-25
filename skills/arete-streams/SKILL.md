@@ -2,7 +2,7 @@
 name: arete-streams
 description: Query or subscribe to deployed Arete stack views from TypeScript, React, Rust, Python, the a4 CLI, or the Arete MCP server. Use for dashboards, bots, backends, current-state reads, live entity updates, view filtering, or stream debugging. Do not use for program accounts or transaction construction; use arete-programs for those.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   min-cli: ">=0.20.4"
 ---
 
@@ -58,6 +58,8 @@ a4 install stack <stack-ref> --python
 ```
 
 Inspect the generated exports and types before coding. Generated names are the application API; raw descriptor field paths remain useful for CLI filters and diagnostics.
+
+If the generated stack definition has empty endpoints, the stack is definition-only and has no deployment yet. Nothing can stream from it until one exists. Deploying it is an external mutation handled by `arete-deploy`; once deployed, the project records the endpoints and the SDK is regenerated. Never invent an endpoint to fill the gap.
 
 ## Select the Correct View Operation
 
