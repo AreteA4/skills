@@ -2,8 +2,8 @@
 name: arete
 description: Discover and install exact Arete stacks or program SDKs for a Solana application. Use for generic Arete setup, capability discovery, choosing between read/build/subscribe coverage, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for Rust stack definitions use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
 metadata:
-  version: "1.1.0"
-  min-cli: ">=0.20.4"
+  version: "1.2.0"
+  min-cli: ">=0.23.0"
 ---
 
 # Discover and Install Arete Capabilities
@@ -49,6 +49,7 @@ constraints.
 Read each result's coverage modes. Continue with only the relevant branch:
 
 - `subscribe`: inspect the named stack, then use `arete-streams` for application code.
+- A stack result without `subscribe` coverage is definition-only. It installs as a typed SDK and a pinned StackManifest, but nothing is hosted. The user can deploy their own copy after installing it (see `arete-deploy`); do not present it as a live stream until then.
 - `read` or `build`: inspect the program surface, then use `arete-programs`.
 - No suitable hosted capability and the user wants a custom feed: specify the missing read model, then use `arete-stack-authoring`.
 - Publication or hosted lifecycle work: use `arete-deploy`.
@@ -100,6 +101,8 @@ a4 install program <program-ref> --ts
 Choose `--ts`, `--rust`, or `--python` from the existing project language and the descriptor's `sdkTargets`. Standalone program packaging may support fewer targets than a program bundled in a stack; trust the descriptor and command output.
 
 Use `--no-save` only for a genuinely disposable, one-package generation. Do not hand-edit generated SDKs.
+
+A definition-only stack's generated SDK has empty endpoints until the project records a deployment of it. Deploying it with `a4 up <alias>` (an external mutation; see `arete-deploy`) records the deployment in `arete.toml` and regenerates the SDK.
 
 For project dependency configuration, locked installs, updates, removals, and output ownership, read [references/project-dependencies.md](references/project-dependencies.md).
 
