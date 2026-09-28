@@ -26,10 +26,10 @@ The CLI uses the skills lockfile to remove only the legacy Arete-owned
 
 | Skill | Use it for |
 | --- | --- |
-| `arete` | Discover capabilities, inspect exact descriptors, and manage project dependencies |
+| `arete` | Discover capabilities, choose between a stack and a program SDK, inspect exact descriptors, and manage project dependencies |
 | `arete-streams` | Query and subscribe to typed stack views from TypeScript, React, Rust, or Python |
-| `arete-programs` | Read program accounts and prepare, inspect, or execute program operations |
-| `arete-stack-authoring` | Design app-facing read models and compile Arete stack artifacts from Solana IDLs |
+| `arete-programs` | Read program accounts and prepare, inspect, or execute program operations, standalone or through a stack |
+| `arete-stack-authoring` | Compose stacks from published views and program SDKs, or design app-facing read models and compile Arete stack artifacts from Solana IDLs |
 | `arete-deploy` | Publish programs and plan or operate hosted stack deployments |
 
 All five skills are installed together. Their descriptions select the smallest relevant workflow at runtime; users do not need to choose individual skills during setup.
