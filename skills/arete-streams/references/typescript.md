@@ -46,6 +46,12 @@ Use `.use()` for merged values, `.watch()` for raw operations, and `.watchRich()
 
 Use server query options exposed by the generated method instead of downloading the full view and filtering locally. Let TypeScript reveal the exact option shape for the installed version.
 
+## One-Shot Reads
+
+`get()` opens (or reuses) the equivalent subscription, waits for its initial snapshot, and releases it. List views also have `getOne()`, a `take: 1` read that resolves `null` for an empty list. Both reject with `InitialDataTimeoutError` after `timeoutMs` (5000 by default; `null` waits forever). `getSync()` never subscribes: it reads an already active subscription and returns `undefined` when there is none.
+
+With `@usearete/sdk` 0.25.0 or earlier, `get()` only reads an already active subscription, so a cold read resolves empty, and `getOne()` does not exist. On those versions, await the first value from `.use()` instead, or upgrade.
+
 ## Errors
 
 Handle initial connection failure separately from later reconnecting state. Preserve structured socket and validation errors in diagnostics. Do not silently discard schema validation failures just because a loop produced no values.
