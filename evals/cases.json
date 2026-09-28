@@ -197,6 +197,47 @@
         "hand-edit the generated SDK",
         "deploy without the authorization the prompt grants"
       ]
+    },
+    {
+      "id": "stack-provides-program-sdk",
+      "prompt": "Build a React page that shows the live ORE board and lets the connected wallet deploy.",
+      "fixture": "initialized React project without Arete dependencies",
+      "expected_skills": ["arete", "arete-streams", "arete-programs"],
+      "must": [
+        "install the ORE stack",
+        "call the deploy operation through the program SDK the stack includes (arete.programs.ore)",
+        "report the auth and entitlement requirements: an origin-bound publishable key for the browser and the account's transaction access"
+      ],
+      "must_not": [
+        "merge stack and program objects by hand",
+        "build the deploy transaction from raw instructions"
+      ]
+    },
+    {
+      "id": "program-sdk-only",
+      "prompt": "Write a script that claims my ORE rewards.",
+      "fixture": "initialized TypeScript project without Arete dependencies",
+      "expected_skills": ["arete", "arete-programs"],
+      "must": [
+        "install the ORE program SDK"
+      ],
+      "must_not": [
+        "install a stack",
+        "subscribe to views"
+      ]
+    },
+    {
+      "id": "compose-views-and-programs",
+      "prompt": "One app needs live ORE rounds and SPL token transfers.",
+      "fixture": "initialized TypeScript project without Arete dependencies",
+      "expected_skills": ["arete"],
+      "must": [
+        "either compose a stack from the ore stack's views and the spl-token program SDK and install it, or install both and use them through one session"
+      ],
+      "must_not": [
+        "merge stack and program objects by hand",
+        "claim that the composition can be published for other projects to install by name"
+      ]
     }
   ]
 }
