@@ -2,8 +2,8 @@
 name: arete-streams
 description: Query or subscribe to deployed Arete stack views from TypeScript, React, Rust, Python, the a4 CLI, or the Arete MCP server. Use for dashboards, bots, backends, current-state reads, live entity updates, view filtering, or stream debugging. Do not use for program accounts or transaction construction; use arete-programs for those.
 metadata:
-  version: "1.2.0"
-  min-cli: ">=0.20.4"
+  version: "1.3.0"
+  min-cli: ">=0.25.0"
 ---
 
 # Query and Subscribe to Arete Views
@@ -75,6 +75,8 @@ Every language expresses the same view semantics:
 | First item from a list | `getOne` / `get_one` |
 
 State views require the generated key shape or language-specific key representation. List and custom views do not. Inspect the generated accessor instead of assuming every language accepts the same key form.
+
+For derived "current X" state, such as a protocol's current round, check whether the stack defines a read (`read.*`) before combining several views and chain state yourself. The [TypeScript](references/typescript.md) and [React](references/react.md) references show how to use one.
 
 For update taxonomy, snapshot authority, query identity, and absence semantics, read [references/view-semantics.md](references/view-semantics.md).
 
