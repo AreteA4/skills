@@ -88,7 +88,30 @@ Do not add explicit legacy wallet adapters (for example a Phantom or Solflare ad
 
 Read-only program account hooks do not require a wallet. A disconnected mutation should remain an error; do not bypass it with an untracked RPC send.
 
-When reconciliation matters, refresh the specific view/read results affected by the operation. Confirmation plus a processed-slot watermark does not prove that every expected entity changed.
+## Reconcile What the Operation Changed
+
+In WebSocket mode, generated mutation hooks reconcile by default: after confirmation they wait for the stack's processed-slot watermark to reach the confirmed slot, then refresh the targets in `reconcile.refresh`. The watermark proves the stream caught up. It does not prove that a particular entity changed, so choose the refresh targets yourself.
+
+No tool infers them. While writing the component:
+
+1. Take the operation's programs, instructions, and accounts: `describePreparedOperation(prepared)` from `@usearete/sdk` on a prepared value (the hook exposes the last one as `prepared`), or `a4 explore stack <stack-ref> --operation <operation> --json` for its required and derived accounts.
+2. Compare them with each installed stack's entities and views from `a4 explore stack <stack-ref> --json`.
+3. Pass exactly the affected views and reads to `reconcile.refresh`.
+
+```tsx
+await deploy.submit(input, {
+  reconcile: {
+    refresh: [
+      arete.views.Board.state, // view hook objects refresh that view's active subscriptions
+      arete.views.Round.state,
+      arete.views.Miner.state,
+      quote, // a read or view hook result
+    ],
+  },
+});
+```
+
+`refresh` accepts view hook objects, view and read hook results, and callbacks. A timeout or failed refresh settles as `confirmed-unreconciled` without undoing the confirmed transaction.
 
 Enable the Arete fluent-hooks ESLint rule so nested `.useMutation()` calls remain subject to Hooks rules.
 

@@ -130,4 +130,4 @@ Match the project's existing wallet ecosystem. Add an Arete adapter for that eco
 - Assert important program IDs, writable accounts, signer accounts, token programs, units, and slippage limits.
 - Inspect or simulate before a real send when the transport supports it.
 - In tests, use a mock/custom transaction transport and prove that ambiguous submission is never retried.
-- After confirmation, reconcile the returned slot with subscribed view state when the application depends on it.
+- After confirmation, refresh exactly the views and reads the operation affects, worked out from its accounts and each installed stack's entities (see the Reconcile section of [references/operation-lifecycle.md](references/operation-lifecycle.md#reconcile)). A caught-up processed-slot watermark alone does not prove an entity changed.
