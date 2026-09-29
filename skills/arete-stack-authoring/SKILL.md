@@ -2,8 +2,8 @@
 name: arete-stack-authoring
 description: Design and compile custom Arete stack artifacts from Solana program IDLs using the Rust DSL, or compose stacks from published live views and program SDKs. Use for app-facing read models, entity keys, cross-account join proof, mappings, aggregations, views, resolvers, stack composition, and ProgramSpec/LiveSpec/StackManifest generation. Do not deploy or mutate hosted resources; use arete-deploy for that.
 metadata:
-  version: "1.1.0"
-  min-cli: ">=0.25.0"
+  version: "1.1.1"
+  min-cli: ">=0.25.1"
 ---
 
 # Author Arete Stack Artifacts
@@ -36,7 +36,7 @@ programs = [{ package = "spl-token", version = "^1" }]
 - The programs the views index come with them, as the program SDKs their stack includes. A `--program` for the same program replaces that SDK; any other `--program` adds an independent program.
 - Without `--selected-view`, each alias selects every view its stack serves. With it, the `alias=view_id` values are the exact ordered allowlist.
 - A registry part without a version is saved at `^<resolved version>`.
-- `--install` also declares `[dependencies.stacks.<name>]` with `source = { workspace = "<name>" }` and installs it. `a4 install` pins every part in `arete.lock` and generates the composed stack's SDK, with each program SDK at `arete.programs.<program>` (take the key from the generated types).
+- `--install` also declares `[dependencies.stacks.<name>]` with `source = { workspace = "<name>" }` and installs it. Pass the SDK target with it (`--install --ts`, `--rust`, or `--python`); it is recorded as the dependency's `targets`, as `a4 install <package> --ts` records it. Without one, the dependency generates every target in `[sdk].targets` (TypeScript and Rust by default). `a4 install` pins every part in `arete.lock` and generates the composed stack's SDK, with each program SDK at `arete.programs.<program>` (take the key from the generated types).
 - A composed stack does not carry a source stack's stack extension, such as its reads. The install output notes each one it leaves out.
 
 A live alias taken from a stack with hosted delivery reads that stack's deployment, so the composed SDK connects without a new deployment. An alias from a definition-only stack or a LiveSpec file has no endpoints until `a4 up <name>` deploys the composed stack to the user's account and records the endpoints. `a4 up <name>` deploys exactly what `arete.lock` pins, and a production deployment lists the program SDK each program carries. Deploying is an external mutation: hand it to `arete-deploy` and require the user's authorization.
