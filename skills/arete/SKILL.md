@@ -2,8 +2,8 @@
 name: arete
 description: Discover and install exact Arete stacks or program SDKs for a Solana application. Use for generic Arete setup, capability discovery, choosing between a stack, a standalone program SDK, or a composed stack, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for Rust stack definitions or composing stacks use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
 metadata:
-  version: "1.3.0"
-  min-cli: ">=0.25.0"
+  version: "1.3.1"
+  min-cli: ">=0.25.1"
 ---
 
 # Discover and Install Arete Capabilities
@@ -144,10 +144,10 @@ Report the requirements before writing code that sends transactions. The install
 When no stack groups the live views and program SDKs you need, compose one from published parts:
 
 ```bash
-a4 stack compose --name <name> --live <stack-ref> --program <program-ref> --install
+a4 stack compose --name <name> --live <stack-ref> --program <program-ref> --install --ts
 ```
 
-This writes `[authoring.stacks.<name>]` in `arete.toml`, declares the stack as a dependency, and installs it. The programs the views index come with them, as their stack's program SDKs. A composed stack does not carry a source stack's stack extension, such as its `read` functions. For view selection, local files, deployment, and limits, use `arete-stack-authoring`.
+This writes `[authoring.stacks.<name>]` in `arete.toml`, declares the stack as a dependency with the SDK target you pass (`--ts`, `--rust`, or `--python`, as for `a4 install`), and installs it. The programs the views index come with them, as their stack's program SDKs. A composed stack does not carry a source stack's stack extension, such as its `read` functions. For view selection, local files, deployment, and limits, use `arete-stack-authoring`.
 
 ## Source-of-Truth Order
 
