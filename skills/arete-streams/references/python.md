@@ -13,7 +13,7 @@ import arete
 from my_generated_stack import MY_STACK
 
 async def read_positions(owner: str) -> None:
-    # No auth option: the SDK uses ARETE_API_KEY if set, else your a4 login.
+    # No auth option: the SDK uses ARETE_API_KEY if set, else your a4 CLI login.
     async with await arete.Arete.connect(MY_STACK) as client:
         current = await client.views.position.state.get(owner=owner)
         print(current)

@@ -9,7 +9,7 @@ use futures_util::StreamExt;
 use arete_sdk::prelude::*;
 use my_generated_stack::MyStack;
 
-// No auth option: connect() uses ARETE_API_KEY if set, else your a4 login.
+// No auth option: connect() uses ARETE_API_KEY if set, else your a4 CLI login.
 let client = Arete::<MyStack>::builder()
     .connect()
     .await?;

@@ -18,7 +18,7 @@ Prefer a session when the application uses multiple stacks, standalone programs,
 import { createSession } from '@usearete/sdk';
 import { MY_STACK } from './generated/my-stack';
 
-// No auth option: server-side, the SDK uses ARETE_API_KEY if set, else your a4 login.
+// No auth option: server-side, the SDK uses ARETE_API_KEY if set, else your a4 CLI login.
 const session = await createSession({ stacks: { app: MY_STACK } });
 
 const current = await session.stacks.app.views.Position.state.get({ owner });
