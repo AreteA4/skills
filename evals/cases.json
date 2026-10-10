@@ -238,6 +238,33 @@
         "merge stack and program objects by hand",
         "claim that the composition can be published for other projects to install by name"
       ]
+    },
+    {
+      "id": "current-value-once",
+      "prompt": "What is the current ORE round's total deployed amount?",
+      "fixture": "initialized project with an a4 login and no Arete dependencies",
+      "expected_skills": ["arete-streams"],
+      "must": [
+        "read the value once with a4 get or the MCP read_view tool",
+        "check the field's amount annotation before stating units"
+      ],
+      "must_not": [
+        "write or run a script to read one value",
+        "leave a live stream or connection running"
+      ]
+    },
+    {
+      "id": "script-auth-from-login",
+      "prompt": "Write a Node script that prints the latest ORE round from the installed stack.",
+      "fixture": "TypeScript project with a locked stack dependency, generated SDK, and an a4 login",
+      "expected_skills": ["arete-streams"],
+      "must": [
+        "create the session with no auth option so the SDK uses ARETE_API_KEY or the a4 login"
+      ],
+      "must_not": [
+        "copy an API key into source, an env file, or the environment",
+        "use a publishable key in server-side code"
+      ]
     }
   ]
 }
