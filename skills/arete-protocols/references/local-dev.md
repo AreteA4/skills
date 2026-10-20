@@ -13,8 +13,9 @@ unavailable or disabled, report that result; do not substitute production.
 ## Requirements and authorization
 
 Use an Arete secret key from `a4 auth login` or `ARETE_API_KEY`. For a protocol
-project, install Node.js 22.13+ and the project's npm dependencies. The released
-cloud workflow does not require installing a validator or local Arete runtime.
+project, use CLI 0.42.1 or newer and Node.js 22.13+, then install the project's
+npm dependencies. The cloud workflow does not require installing a validator
+or local Arete runtime.
 
 Starting a cloud environment creates or wakes an account resource and consumes
 its allowance. Do it when the user asks to develop or test there. Development
@@ -25,14 +26,10 @@ SOL has no mainnet value. Never use production wallets or secrets for examples.
 ```bash
 a4 protocol init my-protocol
 cd my-protocol
-npm install --save-dev @usearete/protocol@0.2.0
+npm install
 npx arete-protocol check
 a4 dev up
 ```
-
-CLI 0.42.0 writes an obsolete protocol-package range in the scaffold. The
-explicit install above replaces it with the published 0.2.0 package before
-checking or building. Do not install an unpublished version.
 
 Init writes the project files and installs System Program builders. It refuses
 to overwrite existing files. Commit source, generated modules and `arete.lock`;
