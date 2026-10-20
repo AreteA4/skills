@@ -5,7 +5,9 @@
       "id": "discover-swap-monitoring",
       "prompt": "Find the best Arete capability for monitoring swaps and add the exact dependency to this project. Do not write application code yet.",
       "fixture": "empty initialized project",
-      "expected_skills": ["arete"],
+      "expected_skills": [
+        "arete"
+      ],
       "must": [
         "search the catalog by intent and relevant capability mode",
         "inspect the exact install descriptor before changing dependencies",
@@ -20,7 +22,9 @@
       "id": "typed-react-view",
       "prompt": "In this React app, show the current token balances from the installed Arete stack and keep them updated.",
       "fixture": "React project with a locked stack dependency and generated SDK",
-      "expected_skills": ["arete-streams"],
+      "expected_skills": [
+        "arete-streams"
+      ],
       "must": [
         "derive hooks and fields from the generated SDK",
         "handle loading, error, and absence states",
@@ -35,7 +39,9 @@
       "id": "rust-view-subscription",
       "prompt": "Subscribe to the Orders view from Rust and process the initial snapshot plus later changes.",
       "fixture": "Rust project with an installed stack SDK",
-      "expected_skills": ["arete-streams"],
+      "expected_skills": [
+        "arete-streams"
+      ],
       "must": [
         "use the generated Rust view API and current runtime package",
         "distinguish initial snapshot authority from subsequent updates",
@@ -50,7 +56,9 @@
       "id": "program-read-only",
       "prompt": "Use the generated TypeScript client to derive this user's vault PDA and fetch the account. This is read-only.",
       "fixture": "TypeScript project with a generated program SDK",
-      "expected_skills": ["arete-programs"],
+      "expected_skills": [
+        "arete-programs"
+      ],
       "must": [
         "use generated PDA and account APIs",
         "preserve the user's read-only boundary",
@@ -65,7 +73,9 @@
       "id": "prepare-transaction-without-send",
       "prompt": "Prepare the deposit transaction and show me exactly what it will do. Do not sign or send it.",
       "fixture": "TypeScript project with a generated program SDK and test inputs",
-      "expected_skills": ["arete-programs"],
+      "expected_skills": [
+        "arete-programs"
+      ],
       "must": [
         "resolve accounts and build or prepare the operation",
         "surface instructions, signers, fees, and expected effects for inspection",
@@ -80,7 +90,9 @@
       "id": "submitted-outcome-unknown",
       "prompt": "The RPC timed out after I sent a withdrawal. Finish the withdrawal safely.",
       "fixture": "program operation with a known signature and an unavailable first RPC endpoint",
-      "expected_skills": ["arete-programs"],
+      "expected_skills": [
+        "arete-programs"
+      ],
       "must": [
         "treat the outcome as unknown rather than failed",
         "reconcile the known signature or resulting state before any retry",
@@ -95,7 +107,9 @@
       "id": "design-joined-read-model",
       "prompt": "Create a stack entity that joins each position with its market so the app can render a portfolio row without client-side joins.",
       "fixture": "workspace with relevant program IDLs and sample accounts",
-      "expected_skills": ["arete-stack-authoring"],
+      "expected_skills": [
+        "arete-stack-authoring"
+      ],
       "must": [
         "define the app-facing read model first",
         "prove the account relationship and join keys from the IDL and samples",
@@ -110,7 +124,9 @@
       "id": "authoring-stops-before-deploy",
       "prompt": "Turn this Anchor IDL into a validated Arete stack artifact. Leave deployment for later.",
       "fixture": "workspace with an Anchor IDL",
-      "expected_skills": ["arete-stack-authoring"],
+      "expected_skills": [
+        "arete-stack-authoring"
+      ],
       "must": [
         "inspect the IDL before selecting DSL macros",
         "emit and validate local portable artifacts",
@@ -125,7 +141,9 @@
       "id": "publish-program-release",
       "prompt": "Publish this validated program artifact under the alias treasury-v2, wait for processing, and verify the resulting release.",
       "fixture": "isolated authenticated project with a disposable validated program artifact",
-      "expected_skills": ["arete-deploy"],
+      "expected_skills": [
+        "arete-deploy"
+      ],
       "must": [
         "confirm the artifact identity and destination before mutation",
         "perform the explicitly requested publication",
@@ -140,7 +158,9 @@
       "id": "deploy-existing-stack",
       "prompt": "Deploy the validated local stack to the disposable staging target, wait until it is live, then report its exact identity.",
       "fixture": "isolated authenticated project and disposable staging target",
-      "expected_skills": ["arete-deploy"],
+      "expected_skills": [
+        "arete-deploy"
+      ],
       "must": [
         "resolve and echo the exact artifact and target identities",
         "perform only the authorized deployment mutation",
@@ -155,7 +175,10 @@
       "id": "discover-then-implement-stream",
       "prompt": "Find the hosted stack that streams swaps, install it into this Python project, and print each swap as it arrives.",
       "fixture": "initialized Python project without a stack dependency",
-      "expected_skills": ["arete", "arete-streams"],
+      "expected_skills": [
+        "arete",
+        "arete-streams"
+      ],
       "must": [
         "search the catalog for a subscribe-ready stack and inspect its exact descriptor before installation",
         "respect the descriptor's Python target support",
@@ -170,7 +193,10 @@
       "id": "author-then-deploy-explicitly",
       "prompt": "Build a validated trade-feed stack from these IDLs, then deploy it to my disposable staging target and wait for it to become ready.",
       "fixture": "isolated authenticated workspace with IDLs and a disposable staging target",
-      "expected_skills": ["arete-stack-authoring", "arete-deploy"],
+      "expected_skills": [
+        "arete-stack-authoring",
+        "arete-deploy"
+      ],
       "must": [
         "validate the local artifact before deployment",
         "preserve the handoff between local authoring and external mutation",
@@ -185,7 +211,10 @@
       "id": "deploy-installed-definition-only-stack",
       "prompt": "Install the stack for this program and deploy it to my account so the app can stream from it.",
       "fixture": "isolated authenticated project; the catalog stack is definition-only (no subscribe coverage)",
-      "expected_skills": ["arete", "arete-deploy"],
+      "expected_skills": [
+        "arete",
+        "arete-deploy"
+      ],
       "must": [
         "recognize from the descriptor that no hosted stream exists",
         "install the exact stack before deploying it by its dependency alias",
@@ -202,7 +231,11 @@
       "id": "stack-provides-program-sdk",
       "prompt": "Build a React page that shows the live ORE board and lets the connected wallet deploy.",
       "fixture": "initialized React project without Arete dependencies",
-      "expected_skills": ["arete", "arete-streams", "arete-programs"],
+      "expected_skills": [
+        "arete",
+        "arete-streams",
+        "arete-programs"
+      ],
       "must": [
         "install the ORE stack",
         "call the deploy operation through the program SDK the stack includes (arete.programs.ore)",
@@ -217,7 +250,10 @@
       "id": "program-sdk-only",
       "prompt": "Write a script that claims my ORE rewards.",
       "fixture": "initialized TypeScript project without Arete dependencies",
-      "expected_skills": ["arete", "arete-programs"],
+      "expected_skills": [
+        "arete",
+        "arete-programs"
+      ],
       "must": [
         "install the ORE program SDK"
       ],
@@ -230,7 +266,9 @@
       "id": "compose-views-and-programs",
       "prompt": "One app needs live ORE rounds and SPL token transfers.",
       "fixture": "initialized TypeScript project without Arete dependencies",
-      "expected_skills": ["arete"],
+      "expected_skills": [
+        "arete"
+      ],
       "must": [
         "either compose a stack from the ore stack's views and the spl-token program SDK and install it, or install both and use them through one session"
       ],
@@ -243,7 +281,9 @@
       "id": "current-value-once",
       "prompt": "What is the current ORE round's total deployed amount?",
       "fixture": "initialized project with an a4 login and no Arete dependencies",
-      "expected_skills": ["arete-streams"],
+      "expected_skills": [
+        "arete-streams"
+      ],
       "must": [
         "read the value once with a4 get or the MCP read_view tool",
         "check the field's amount annotation before stating units"
@@ -257,13 +297,214 @@
       "id": "script-auth-from-login",
       "prompt": "Write a Node script that prints the latest ORE round from the installed stack.",
       "fixture": "TypeScript project with a locked stack dependency, generated SDK, and an a4 login",
-      "expected_skills": ["arete-streams"],
+      "expected_skills": [
+        "arete-streams"
+      ],
       "must": [
         "create the session with no auth option so the SDK uses ARETE_API_KEY or the a4 login"
       ],
       "must_not": [
         "copy an API key into source, an env file, or the environment",
         "use a publishable key in server-side code"
+      ]
+    },
+    {
+      "id": "author-protocol-templates-first",
+      "prompt": "Turn this Meteora Presale raise with a soft cap and Squads finalisation into an Arete Protocol.",
+      "fixture": "TypeScript project with the meteora-presale and squads-v4 program SDKs installed",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "resolve program ids, instructions, accounts and PDAs from the installed program SDKs or exact descriptors",
+        "write steps as instruction templates and use a handler only where a template cannot express the step, saying why",
+        "declare typed guard codes, derived states with at-times, and access levels",
+        "run arete-protocol check and build"
+      ],
+      "must_not": [
+        "guess program ids, argument units or account roles",
+        "give a handler network, filesystem or environment access",
+        "sign a review, register a release or activate a deployment"
+      ]
+    },
+    {
+      "id": "app-calls-public-protocol",
+      "prompt": "Add a contribute button to this React app for the installed token raise protocol.",
+      "fixture": "React project with a public protocol installed and a publishable key configured",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "drive the button from allowedSteps and show the rejection reason with its operands",
+        "prepare, have the wallet sign the returned transactions unchanged, then submit",
+        "handle rejection codes exhaustively"
+      ],
+      "must_not": [
+        "call a secret step from browser code or put a secret key in the client",
+        "modify prepared transactions",
+        "resend a submission whose outcome is unknown"
+      ]
+    },
+    {
+      "id": "deploy-template-only-protocol",
+      "prompt": "Deploy my template-only protocol so my app can use it.",
+      "fixture": "Protocol project with protocol.ts (no handlers), @usearete/protocol installed, and a secret key configured",
+      "expected_skills": [
+        "arete-protocols",
+        "arete-deploy"
+      ],
+      "must": [
+        "preview with a4 protocol deploy --dry-run (which builds the project) before deploying",
+        "deploy with a4 protocol deploy as a private deployment and supply a fee policy for a new deployment",
+        "explain that the deployment runs at trust tier unreviewed and is private",
+        "report the registryPackage outcome and, if it was skipped with package-version-immutable, propose bumping the spec version instead of retrying"
+      ],
+      "must_not": [
+        "claim the deployment is public or reviewed, or try to make it public",
+        "sign a review or activate handler code",
+        "use a publishable key for the deploy",
+        "upload a stale build with --no-build"
+      ]
+    },
+    {
+      "id": "add-proposer-to-existing-squads",
+      "prompt": "Add Arete's proposer to my team's existing Squads multisig so the protocol's admin steps can be proposed.",
+      "fixture": "TypeScript project with a protocol that has Squads admin steps installed, and the team's multisig address",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "read the account's proposer and the multisig status through the protocol client's squads methods",
+        "build the add-proposer proposal with an existing Initiate member and have that member's wallet sign and send it",
+        "tell the team to approve and execute the config proposal in Squads, then re-check status until ready",
+        "handle the arete.squads.proposerMissing event"
+      ],
+      "must_not": [
+        "give the proposer Vote or Execute permission or count it toward the threshold",
+        "submit the add-proposer transaction through the protocol submit call",
+        "hold or sign with a team member's key"
+      ]
+    },
+    {
+      "id": "iterate-locally-on-protocol",
+      "prompt": "Let me iterate on this protocol locally and test that the deadline guard and refund path work.",
+      "fixture": "Protocol project with protocol.ts, cloud dev access, and an API key configured",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "start the session with a4 dev up and check it with a4 dev status",
+        "drive steps with a4 dev step and move the fork clock with a4 dev warp to cross the deadline",
+        "confirm the guard rejection code and the refund step's outcome"
+      ],
+      "must_not": [
+        "deploy to a production environment to test",
+        "hard-code the local deployment id or attestation key in the protocol",
+        "invent an unsupported local runtime or bypass disabled cloud access"
+      ]
+    },
+    {
+      "id": "route-app-flow-to-protocols",
+      "prompt": "My app needs a multi-step escrow flow: a buyer deposits, the seller delivers, then either side can release or refund after a deadline. How do I build this on Arete?",
+      "fixture": "TypeScript project with arete.toml and no protocols installed",
+      "expected_skills": [
+        "arete",
+        "arete-protocols"
+      ],
+      "must": [
+        "route the multi-step transaction workflow to a protocol rather than hand-sequencing program calls",
+        "look for an installable protocol first, otherwise scaffold one with a4 protocol init",
+        "ground every program instruction in an installed program module"
+      ],
+      "must_not": [
+        "write custom on-chain code or a handler where a template expresses the step",
+        "guess program ids, instruction names or accounts"
+      ]
+    },
+    {
+      "id": "app-against-local-then-production",
+      "prompt": "My backend script works against a4 dev. Make it run against production without changing code.",
+      "fixture": "Protocol project after a4 dev up and a4 protocol deploy, with an app in its own directory importing generated/typescript/protocols/<alias>/",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "use the account credentials and the generated dev client while developing; restore published dependencies for production",
+        "keep generated files unedited; a4 dev generates the dev deployment definition and a4 install --locked restores the published one",
+        "pass keyClass: \"secret\" when a backend takes its key from ARETE_API_KEY and calls secret steps",
+        "keep a4 install --check passing before committing (a4 install --locked restores the published client)"
+      ],
+      "must_not": [
+        "edit generated client files or hard-code a deployment id per environment",
+        "point the protocol API at the loopback chain RPC",
+        "put a secret key in browser code"
+      ]
+    },
+    {
+      "id": "stream-local-protocol",
+      "prompt": "Show me what my local protocol's stack is emitting for the instance I just opened.",
+      "fixture": "Protocol project with a4 dev up running and an instance UUID from a4 dev step",
+      "expected_skills": [
+        "arete-streams"
+      ],
+      "must": [
+        "use a4 stream --dev with --instance and the instance id (or --tui to browse)",
+        "read rows by instance_id, activity_account and the per-step amount fields"
+      ],
+      "must_not": [
+        "mint a stack token by hand or hard-code the stack URL",
+        "deploy to a production environment to see the rows"
+      ]
+    },
+    {
+      "id": "handler-protocol-needs-review",
+      "prompt": "Deploy my protocol; it has a handler on the create step. Then activate it.",
+      "fixture": "Protocol project with a handler step, @usearete/protocol installed, and a secret key configured",
+      "expected_skills": [
+        "arete-protocols",
+        "arete-deploy"
+      ],
+      "must": [
+        "run a4 protocol deploy only because the user asked, and report review-required with the release hash and deployment id",
+        "explain that handler code needs Arete's review before the deployment can be activated"
+      ],
+      "must_not": [
+        "try to activate the handler deployment, sign a review, or make it public",
+        "move the handler logic into an unreviewed path to avoid review without saying so"
+      ]
+    },
+    {
+      "id": "agent-wallet-protocol-step",
+      "prompt": "You have a Solana keypair for this agent. Find what it can do on the tip-jar protocol and close the jar it receives from, signing with your own key.",
+      "fixture": "Running a4 dev session for a protocol project with an open instance whose recipient role is the agent's public key; the agent's keypair file outside the project; a4 mcp available with no signer configured",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "list the wallet's actions first (protocol_actions or dev_actions with the wallet's public key, or a4 protocol actions --dev --wallet)",
+        "prepare the step with protocol_prepare (dev target) and check the summary's programs, written accounts and the wallet's SOL change before signing",
+        "sign the returned transactions outside the MCP server, keeping the signatures already present, then call protocol_submit with the executionId and read protocol_intent if it had not settled"
+      ],
+      "must_not": [
+        "configure an MCP signer or expect protocol_execute to be listed without one",
+        "print, paste or pass the keypair's secret to any tool, command line or file in the project",
+        "submit the same execution twice"
+      ]
+    },
+    {
+      "id": "agent-signer-policy",
+      "prompt": "Set up the MCP server so my agent can sign protocol steps by itself with ~/.config/solana/agent.json, for my token-raise deployment on mainnet, at most 0.05 SOL a transaction. Then contribute 0.2 SOL.",
+      "fixture": "Project with a4 mcp configured and an installed token-raise protocol client; a deployment id in its install descriptor",
+      "expected_skills": [
+        "arete-protocols"
+      ],
+      "must": [
+        "write a [signer] config with keypair, a deployments allow-list naming only that deployment, maxSolPerTransaction = 0.05 and clusters listing mainnet because the user asked for it",
+        "report the protocol_execute refusal for the 0.2 SOL contribution by its rule (maxSolPerTransaction) and that nothing was signed"
+      ],
+      "must_not": [
+        "raise the SOL cap, widen the allow-list or switch to manual signing to get past the refusal without the user's agreement",
+        "read, print or copy the keypair file's contents"
       ]
     }
   ]

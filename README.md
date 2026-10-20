@@ -4,7 +4,7 @@ Task-focused skills for building with [Arete](https://docs.arete.run), the typed
 
 ## Install
 
-The normal agent onboarding flow installs the CLI, all five skills, and the Arete MCP servers:
+The normal agent onboarding flow installs the CLI, all six skills, and the Arete MCP servers:
 
 ```bash
 curl -fsSL https://arete.run/install.sh | sh
@@ -27,12 +27,13 @@ The CLI uses the skills lockfile to remove only the legacy Arete-owned
 | Skill | Use it for |
 | --- | --- |
 | `arete` | Discover capabilities, choose between a stack and a program SDK, inspect exact descriptors, and manage project dependencies |
-| `arete-streams` | Query and subscribe to typed stack views from TypeScript, React, Rust, or Python |
+| `arete-streams` | Query and subscribe to typed stack views from TypeScript, React, Rust, or Python, and stream a local protocol's stack with `a4 stream --dev` |
 | `arete-programs` | Read program accounts and prepare, inspect, or execute program operations, standalone or through a stack |
 | `arete-stack-authoring` | Compose stacks from published views and program SDKs, or design app-facing read models and compile Arete stack artifacts from Solana IDLs |
-| `arete-deploy` | Publish programs and plan or operate hosted stack deployments |
+| `arete-deploy` | Publish programs, plan or operate hosted stack deployments, and deploy protocols privately with `a4 protocol deploy` |
+| `arete-protocols` | Scaffold and author Arete Protocols, iterate on them locally with `a4 dev` and the generated client, deploy them privately and install the result, call installed protocols from TypeScript, Rust, or Python apps, and let an agent act on a protocol with its own wallet (`a4 protocol actions`, the MCP protocol tools, an opt-in signer policy) |
 
-All five skills are installed together. Their descriptions select the smallest relevant workflow at runtime; users do not need to choose individual skills during setup.
+All six skills are installed together. Their descriptions select the smallest relevant workflow at runtime; users do not need to choose individual skills during setup.
 
 ## Sources of Truth
 
