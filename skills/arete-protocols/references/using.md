@@ -72,9 +72,13 @@ fields and may lag.
 ## Prepare, sign, submit
 
 ```ts
-const result = await raise.steps.contribute.prepare({ instance: id, wallet, amount: "1000000000" });
+const result = await raise.steps.contribute.prepare(
+  { instance: id, wallet, amount: "1000000000" },
+  { transactionFormat: "v0" },
+);
 if (!result.ok) {
   switch (result.rejection.rejected) { /* exhaustive over the step's guard codes */ }
+  throw new Error(`Preparation rejected: ${result.rejection.rejected}`);
 }
 // Each entry is the full wire transaction (Arete's signatures filled in,
 // the wallet's slots empty) as base64: hand it to the wallet unchanged.
@@ -206,12 +210,14 @@ with a `prepare_<step>` method per step. Both dereference to
 
 ```rust
 use futures::StreamExt;
-use arete_sdk::protocol::{ProtocolEventsOptions, ProtocolPrepareOptions, ProtocolStreamEvent};
+use arete_sdk::protocol::{ProtocolEventsOptions, ProtocolPrepareOptions, ProtocolStreamEvent, ProtocolTransactionFormat};
 use token_raise_protocol::*;
 
 let client = TokenRaiseSecretClient::from_env()?; // ARETE_API_KEY, backend only
 let args = TokenRaiseContributeArgs { amount: 1_000_000_000u64.into() }; // ProtocolInteger
-match client.prepare_contribute(&instance_id, &wallet, &args, ProtocolPrepareOptions::default()).await? {
+let options = ProtocolPrepareOptions::default()
+    .with_transaction_format(ProtocolTransactionFormat::V0);
+match client.prepare_contribute(&instance_id, &wallet, &args, options).await? {
     ProtocolPrepareResult::Prepared(prepared) => {
         // Sign each `transaction_base64` unchanged with the wallet.
         let signed = sign_with_wallet(&prepared.transactions)?;
@@ -254,7 +260,10 @@ from arete.protocol import SQUADS_PROPOSER_MISSING_EVENT
 from token_raise_protocol import TokenRaiseSecretClient, verify_token_raise_webhook
 
 async with TokenRaiseSecretClient(auth=AuthConfig(secret_key=key)) as client:
-    result = await client.steps.contribute(instance=instance_id, wallet=wallet, args={"amount": "1000000000"})
+    result = await client.steps.contribute(
+        instance=instance_id, wallet=wallet, args={"amount": "1000000000"},
+        transaction_format="v0",
+    )
     if not result.ok:
         handle_rejection(result.rejected, result.detail)   # guard code + operands
     else:
