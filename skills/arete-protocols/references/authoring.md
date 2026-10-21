@@ -152,6 +152,46 @@ otherwise gate a step: from a non-terminal state, guard on
 Arete adds the fee transfer, compute budget, ATA creation, wSOL wrap and
 unwrap, and the attested memo. Never emit fee or memo instructions yourself.
 
+## Fee classification and execution support
+
+A fee classification is Arete's reviewed interpretation of an instruction's
+money movement. It identifies the principal, asset and source/destination, or
+establishes a refund/utility exemption. It is separate from the protocol's
+state machine, its display labels and any review required to run handler code.
+
+For a supported instruction, the platform assesses the actual built operation
+and adds the required fee. Authors return the intended program instructions;
+they do not construct platform fee transfers or decide exemptions themselves.
+A step named `refund` is not automatically exempt. Refund exemptions need
+review of the exact protocol release and step; changing that release can require
+reviewing the exemption again.
+
+General instruction classifications are reusable across protocols using the
+same reviewed program identity and instruction. Custom program identities are
+pinned Program Releases; builtin identities have their own classifications.
+Installing or publishing a program, changing an IDL, or activating a protocol
+does not create a fee classification. A new program/version/instruction may
+therefore need Arete support before execution works, including on a cloud fork.
+This is not a requirement for every user to request approval for every call.
+
+When the API returns `protocol-mandatory-fee-unavailable`, inspect its message:
+it covers missing/ambiguous or retired classifications and unsupported shapes,
+not only a missing rule. Preserve the release hash, step, exact program pins
+and diagnostic for Arete support. A rule change can also invalidate an already
+prepared intent; reassess it before preparing again. Do not rewrite program
+identities, drop pins or relabel movements to obtain an exemption.
+
+The initial mandatory-fee implementation requires one atomic transaction and
+one fee asset. Mixed-asset/multi-transaction operations and Squads proposal
+wrapping may be refused; use the API's current diagnostic for the supported
+shape. Support for an SDK builder is not proof of hosted execution support.
+
+In the app, show the prepared fee asset, amounts and destinations before the
+user signs, with network fees/rent separately. Use the returned assessment and
+receipt rather than hard-coding rates or splits into the skill or app. Repeated
+routing instructions do not imply a separate full fee at every hop. See
+[execution receipts](using.md#execution-receipts) for checking completed charges.
+
 ## The generated stack
 
 Each deployment gets a generated stack (Instances, Activity and

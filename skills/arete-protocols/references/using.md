@@ -14,6 +14,48 @@ your account with no deployment flag (other accounts can't). Never edit the
 generated files; `a4 install --check` in CI fails when a client is not the
 published release `arete.lock` pins.
 
+## Execution receipts
+
+A signed execution receipt connects a completed transaction signature to its
+protocol deployment/release, instance, step, message hash and assessed fees.
+It is distinct from the build receipt and from a UI execution/history entry.
+Keep the transaction signatures and execution/instance ids returned by the flow.
+If a receipt is not yet available, inspect finality and intent status; retry the
+read rather than sending the transaction again.
+
+Read a receipt with the generated client's `getReceipt(signature)` and the
+published key set with `getReceiptKeys()` (check the installed SDK for language
+spellings), or use:
+
+- `GET /api/protocol-receipts/<signature>`
+- `GET /api/protocol-receipts/keys`
+
+Private deployment receipts require the owner/integrator's authorized API key;
+public receipts and the key set can be read anonymously. The current CLI has no
+dedicated receipt command. Never expose a secret key in browser code or logs to
+fetch a private receipt; use an authenticated backend when needed.
+
+Fetching JSON does not verify its claims. In TypeScript, `verifyReceipt` checks
+receipt signatures against a trusted receipt-key set; `verifyReceiptOnChain`
+checks the message/memo claims against chain transaction evidence. Check the
+installed SDK's exact input types and validation result, and establish trust in
+the key set rather than accepting arbitrary keys attached to a receipt. Query
+the transaction on the receipt's actual chain: a dev-environment signature must
+be read from that fork's RPC. Verify deployment/release, instance, step and fees
+against the requested operation as well.
+
+An absent private receipt can mean insufficient access rather than a missing
+transaction. Receipt issuance also depends on service configuration and the
+execution path; a standalone local protocol runtime does not issue hosted
+receipts. Preserve errors and report that distinction rather than inventing a
+receipt or treating absence as permission to resubmit.
+
+For fee-related prepare refusals, read
+[fee classification](authoring.md#fee-classification-and-execution-support).
+Applications should explain the quoted fee and rejection to the user; they do
+not need to expose classifier administration, instruction offsets or review
+procedures in a normal signing flow.
+
 ## Keys and access
 
 - **Browser:** a publishable key, bound to the app's origin. The client can

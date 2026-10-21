@@ -21,6 +21,24 @@ Starting a cloud environment creates or wakes an account resource and consumes
 its allowance. Do it when the user asks to develop or test there. Development
 SOL has no mainnet value. Never use production wallets or secrets for examples.
 
+## CLI profiles and environment selection
+
+A CLI credential profile chooses the account/key used for API access; a dev
+wallet signs transactions on the fork. They are separate identities. Use the
+profile appropriate to the caller, and keep it consistent across init, dev,
+stream and deployment commands. For example, a human using stored human
+credentials can pass `--profile human`; an agent should use its authorized
+agent profile rather than borrowing the human profile to bypass a refusal.
+Inspect `a4 auth status` and `a4 auth whoami` when access is unclear.
+
+An environment need not be dedicated to one protocol. Reuse one with
+`a4 dev up --env <existing-name>` when shared chain state is useful, or choose
+another name for an isolated fork when quota allows. Projects sharing an
+environment also share its account balances and lifecycle: sleeping or restoring
+it affects the other projects. `--port-base 0` avoids local port conflicts but
+does not create chain isolation. Use the global released `a4`; check its version
+and help rather than introducing an operator-specific binary path.
+
 ## Start a project
 
 ```bash
@@ -107,6 +125,64 @@ The MCP tools include `dev_status`, `dev_step`, `dev_instance`, `dev_actions`,
 `dev: true` to use the project's dev deployment. See [agents.md](agents.md)
 for the prepare/check/sign/submit flow and optional local signer.
 
+## Validate a flow without prescribing its business logic
+
+Use the actual spec and the wallet's available actions to choose steps and
+arguments. Do not assume every protocol has create/pay/refund/close steps or
+that every step is allowed at every state. A useful development pass is:
+
+1. Inspect the deployment, wallet balances and available actions.
+2. Start a stream or the dev UI before running a step, so its resulting rows
+   can be compared with the execution result.
+3. Run a permitted step with a named dev wallet. A create step has no instance
+   id; later steps use the returned `instanceId` when their scope requires it.
+4. Inspect the instance for the relevant wallet, the transaction result and
+   balance changes. Wait for `completed`; a signature alone is not completion.
+5. Exercise a meaningful rejection from the spec (wrong role, invalid argument,
+   unmet state or terminal instance), and confirm that nothing was submitted.
+6. Continue with another permitted step or create a fresh instance as the
+   protocol requires. After editing the spec, watch for a successful redeploy
+   and reload clients which imported the previous definition.
+
+Use the UI, CLI or generated SDK according to the task; these are alternative
+ways to drive the same flow, not a required sequence. CLI examples are:
+
+```bash
+a4 protocol actions --dev --wallet <dev-wallet> --json
+a4 dev step <step> --wallet <dev-wallet> --args '<json>' --json
+a4 dev instance <instance-id> --wallet <dev-wallet> --json
+a4 stream --dev --instance <instance-id>
+```
+
+Inspect `state`, rejection codes and transaction errors in JSON output.
+`expired`/`blockhash_expired` is a failed attempt, not a slow success. If the
+submission outcome is ambiguous, inspect the existing intent and chain status
+before starting another execution; never blindly resend. Current CLI versions
+report execution phases on stderr while reserving stdout for the JSON result.
+
+## What environment operations preserve
+
+| Operation | Effect |
+|---|---|
+| `dev down` | Stops this project's local forwarding/UI; keeps the hosted fork. |
+| `dev sleep` / `dev wake` | Stops/resumes the hosted environment with retained fork state. |
+| `dev checkpoint` / `dev restore` | Saves/restores fork chain state; restore undoes later chain writes. |
+| `dev rebase` | Refreshes untouched accounts from mainnet; retains fork-written/pinned accounts. |
+| `dev reset` | Resets the fork, or the selected account with `--account`; inspect its flags and scope first. |
+| `dev delete` | Deletes the environment and its retained state/checkpoints. |
+
+A checkpoint does not snapshot the API's protocol instance, intent or execution
+records, nor local CLI history. Restoring chain state does not reopen a terminal
+recorded instance or undo a submitted API execution record. Check the current
+instance/actions and use a fresh instance where appropriate. Restore is useful
+for chain-state experiments, not as a promise of a whole-platform rollback.
+
+Fee enforcement also applies when the hosted API prepares an environment-bound
+execution. Building or activating a template-only protocol does not establish
+that all of its instructions have fee classifications. See
+[fee classification](authoring.md#fee-classification-and-execution-support) and
+[execution receipts](using.md#execution-receipts).
+
 ## Deploying your own protocol
 
 Deploying is an external mutation: do it only when the user asked for it.
@@ -184,6 +260,10 @@ Then:
 - RPC unavailable: check `a4 dev status`, the selected environment and whether
   `a4 dev up` is still forwarding. Environment tokens expire and are renewed
   by the CLI; do not hard-code them.
+- `protocol-mandatory-fee-unavailable`: preserve the diagnostic, exact release,
+  step and program pins for the author/Arete support. It can mean an unknown or
+  ambiguous classification, a retired rule or an unsupported transaction shape.
+  Do not change fee settings, discard pins or repeatedly submit to bypass it.
 - Build or activation failure: read the diagnostics in the CLI or dev UI.
   Verify installed program modules and `arete.lock` before rebuilding.
 - Wrong environment: inspect `a4 dev status --json` and `ARETE_DEV_ENV` before
