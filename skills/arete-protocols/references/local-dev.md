@@ -177,11 +177,9 @@ recorded instance or undo a submitted API execution record. Check the current
 instance/actions and use a fresh instance where appropriate. Restore is useful
 for chain-state experiments, not as a promise of a whole-platform rollback.
 
-Fee enforcement also applies when the hosted API prepares an environment-bound
-execution. Building or activating a template-only protocol does not establish
-that all of its instructions have fee classifications. See
-[fee classification](authoring.md#fee-classification-and-execution-support) and
-[execution receipts](using.md#execution-receipts).
+The prepared transaction includes any applicable platform fee on a cloud fork.
+Unknown fee classification does not block otherwise valid execution. See
+[fees](authoring.md#fees) and [execution receipts](using.md#execution-receipts).
 
 ## Deploying your own protocol
 
@@ -260,10 +258,6 @@ Then:
 - RPC unavailable: check `a4 dev status`, the selected environment and whether
   `a4 dev up` is still forwarding. Environment tokens expire and are renewed
   by the CLI; do not hard-code them.
-- `protocol-mandatory-fee-unavailable`: preserve the diagnostic, exact release,
-  step and program pins for the author/Arete support. It can mean an unknown or
-  ambiguous classification, a retired rule or an unsupported transaction shape.
-  Do not change fee settings, discard pins or repeatedly submit to bypass it.
 - Build or activation failure: read the diagnostics in the CLI or dev UI.
   Verify installed program modules and `arete.lock` before rebuilding.
 - Wrong environment: inspect `a4 dev status --json` and `ARETE_DEV_ENV` before

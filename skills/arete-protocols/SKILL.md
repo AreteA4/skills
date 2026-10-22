@@ -2,7 +2,7 @@
 name: arete-protocols
 description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol_actions, protocol_prepare and protocol_submit tools, an opt-in signer policy). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.4.4"
+  version: "1.4.5"
   min-cli: ">=0.42.1"
 ---
 
@@ -24,7 +24,7 @@ Start, iterate locally and deploy your own protocol with
 [references/local-dev.md](references/local-dev.md), including CLI profiles,
 environment selection, execution checks and what persists across restores.
 
-For money-moving steps, read the [fee classification guidance](references/authoring.md#fee-classification-and-execution-support).
+For transaction fees returned by prepare, read [fees](references/authoring.md#fees).
 For completed transactions, see [execution receipts](references/using.md#execution-receipts).
 
 Act on a protocol as an agent with a wallet (what can it do, prepare, check,

@@ -50,11 +50,9 @@ execution path; a standalone local protocol runtime does not issue hosted
 receipts. Preserve errors and report that distinction rather than inventing a
 receipt or treating absence as permission to resubmit.
 
-For fee-related prepare refusals, read
-[fee classification](authoring.md#fee-classification-and-execution-support).
-Applications should explain the quoted fee and rejection to the user; they do
-not need to expose classifier administration, instruction offsets or review
-procedures in a normal signing flow.
+Applications display any prepared fee and verify completed fees through the
+receipt. Users do not manage classifications or request approval for fees.
+See [fees](authoring.md#fees).
 
 ## Keys and access
 
