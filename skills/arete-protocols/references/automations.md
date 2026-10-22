@@ -28,19 +28,54 @@ have already committed the money: a direct deposit is simpler.
 
 ## Set up
 
+Handlers live in a definition, apart from keys, store and URLs, so the same
+code runs under `a4 dev` and in production. In the protocol's project:
+
 ```bash
-npm install @usearete/automations @usearete/sdk pg
+npm install @usearete/automations @usearete/sdk
+npm install --save-dev tsx
 ```
 
-Install the protocol's client as in [using](using.md); its module exports the
-definition (for example `TOKEN_RAISE_PROTOCOL`).
+```ts
+// automations.ts
+import { defineAutomations } from "@usearete/automations";
+import { TOKEN_RAISE_PROTOCOL } from "./generated/typescript/protocols/token-raise/token-raise.js";
+
+export default defineAutomations(
+  TOKEN_RAISE_PROTOCOL,
+  (automations) => {
+    automations.on("raise.failed", async (event, ctx) => { /* return ctx.step(...) per wallet */ });
+  },
+  { policy: { programs: [RAISE_PROGRAM_ID], maxSolPerTransaction: "0.001" } }, // what may be signed
+);
+```
+
+```toml
+# arete.toml
+[dev.automations]
+entry = "automations.ts"   # or: forward = "http://localhost:3000/api/arete-webhook"
+```
+
+`a4 dev up` then runs the definition against the dev environment (a fork of
+mainnet): the client it generated (target `dev`), a signer for the dev
+wallets, simulation on its local RPC, a store under
+`.arete/dev/automations/`, and the environment's events as signed webhook
+deliveries (dev environments send no webhooks). It restarts on save.
+`a4 dev consent <wallet> --steps refund` opts a dev wallet in; then drive the
+protocol with `a4 dev step` and `a4 dev warp`. With `forward`, it delivers
+the signed events to the app's own webhook route instead, signed with
+`.arete/dev/automations/webhook-secret`.
+
+Arete runs dev environments and mainnet only. Never set up devnet or
+testnet for automations.
+
+In production the backend builds the runtime and uses the definition:
 
 ```ts
 import { createProtocolClient } from "@usearete/sdk";
-import pg from "pg";
-import { createAutomations, definePolicy, rpcSimulator, SOL } from "@usearete/automations";
-import { keypairSigner } from "@usearete/automations/keypair";
+import { createAutomations, definePolicy, rpcSimulator } from "@usearete/automations";
 import { postgresStore } from "@usearete/automations/postgres";
+import definition from "./automations";
 
 const client = createProtocolClient(TOKEN_RAISE_PROTOCOL, {
   auth: { secretKey: process.env.ARETE_SECRET_KEY! }, // backend only
@@ -48,23 +83,25 @@ const client = createProtocolClient(TOKEN_RAISE_PROTOCOL, {
 
 const automations = createAutomations({
   client,
-  signer: keypairSigner(devWalletSecretKey), // dev and tests only
+  signer,                                  // a wallet provider (Privy); keypairSigner only for tests
   policy: definePolicy({
-    deployments: [client.deploymentId], // required
-    clusters: ["devnet"],               // mainnet only when listed
-    programs: [RAISE_PROGRAM_ID],       // the programs the steps call
-    maxSolPerTransaction: "0.001",      // required, in SOL
+    ...definition.policy!,
+    deployments: [client.deploymentId],    // required
+    clusters: ["mainnet"],                 // mainnet only when listed
   }),
   simulator: rpcSimulator(process.env.RPC_URL!),
   store: postgresStore(pool),
-  cluster: "devnet",
   consent: { domain: "app.example" },
   onOutcome: (outcome) => notifyUser(outcome),
 });
+await automations.use(definition);
 ```
 
-It is a library in the app's backend, next to the app's own database. It
-needs a secret-key client, so it never runs in a browser.
+The target comes from the client: `dev` for the client `a4 dev` generated,
+`mainnet` after `a4 install --locked` restores the published one. The policy
+allows `dev` by default and mainnet only when listed. It is a library in the
+app's backend, next to the app's own database. It needs a secret-key client,
+so it never runs in a browser.
 
 ## Handlers and fan-out
 
@@ -98,7 +135,8 @@ automations.on("raise.failed", async (event, ctx) => {
 | Trigger | API |
 | --- | --- |
 | A protocol event (`emit` in a reaction), production | `automations.webhookHandler({ secret })`; Express: `expressWebhookHandler` behind `express.raw({ type: "application/json" })` |
-| A protocol event, development or one instance | `automations.follow(instanceId)` |
+| A protocol event under `a4 dev` | forwarded by `a4 dev up` as signed deliveries; nothing to set up |
+| One instance's events | `automations.follow(instanceId)` |
 | A schedule | the app's cron calls `automations.dispatch(name, payload, { id: scheduleSlot("weekly-buy", "week") })` |
 | A whole live view (which market is best) | `fromView(view, { name, key, derive, changed, stableFor })` |
 | One signal per row (this position's health) | `fromViewRows(view, { name, key, derive, filter, ... })` |
@@ -230,5 +268,6 @@ funds between the user's own positions.
   and the UI shows human amounts and a revoke control.
 - The policy lists only the deployment, cluster and programs the steps need;
   mainnet only when the user asked.
-- Tests run against `memoryStore()` and a dev environment with
-  `keypairSigner`; every outcome reaches `onOutcome`.
+- Handlers are in a `defineAutomations` module run with `a4 dev up`
+  (`[dev.automations]`) before production; tests use `memoryStore()`, and
+  every outcome reaches `onOutcome`.

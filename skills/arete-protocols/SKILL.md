@@ -216,10 +216,13 @@ When a step needs the user's own signature but should run without them
 change), the app's backend can run it with `@usearete/automations`:
 
 ```ts
-const automations = createAutomations({ client, signer, policy, simulator, store, cluster, consent });
-automations.on("raise.failed", async (event, ctx) => {
-  const grants = await ctx.consents.list({ step: "refund", instanceId: event.instanceId });
-  return grants.map((g) => ctx.step("refund", { wallet: g.wallet, instance: event.instanceId }));
+// automations.ts: run by `a4 dev up` ([dev.automations] entry), and in
+// production by createAutomations({ client, signer, policy, ... }).use(definition)
+export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
+  automations.on("raise.failed", async (event, ctx) => {
+    const grants = await ctx.consents.list({ step: "refund", instanceId: event.instanceId });
+    return grants.map((g) => ctx.step("refund", { wallet: g.wallet, instance: event.instanceId }));
+  });
 });
 ```
 
@@ -227,8 +230,11 @@ automations.on("raise.failed", async (event, ctx) => {
   advance it, a direct deposit if the money is committed now, an on-chain
   allowance for a fixed recurring payment. Automations are for steps the user
   must sign, from a wallet that already holds their funds.
+- Develop in the dev environment, then mainnet (never devnet): `a4 dev up`
+  runs the definition, forwards the environment's events as signed
+  deliveries and reloads on save; `a4 dev consent` opts a dev wallet in.
 - Triggers: signed webhooks for emitted events (`webhookHandler`), `follow`
-  for an instance's stream in development, `dispatch` with `scheduleSlot`
+  for one instance's stream, `dispatch` with `scheduleSlot`
   from the app's cron, and `fromView`, `fromViewRows` or `fromAppendView` for
   live data. Handlers return steps; they never prepare or sign.
 - Nothing runs without a consent the user signed (`consent.proofMessage`,
