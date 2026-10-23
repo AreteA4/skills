@@ -122,7 +122,7 @@ rpcUrl = "https://<your-rpc>"             # simulates balance changes
 deployments = ["<deployment id>"]         # required allow-list
 maxSolPerTransaction = 0.05               # required: SOL out of the signer per transaction
 programs = ["<program id>"]               # optional allow-list
-clusters = ["localnet", "devnet"]         # optional; mainnet only when listed
+clusters = ["dev"]                        # optional; mainnet only when listed
 
 [signer.policy.maxTokenAmounts]           # optional: base units out per mint; other mints refused
 "<mint>" = "5000000"
@@ -147,7 +147,7 @@ Report a refusal as it is; do not widen the policy to get past it.
 - The keypair's secret never appears in tool output, errors or logs. Never
   read, print or copy the keypair file yourself.
 - In an `a4 dev` session the signer's wallet gets fork SOL when it has none:
-  try the policy there (`dev: true`, `clusters` including `localnet`) before
+  try the policy there (`dev: true`, `clusters` including `dev`) before
   pointing it at a real deployment.
 
 ## Trying it locally

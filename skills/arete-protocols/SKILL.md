@@ -1,8 +1,8 @@
 ---
 name: arete-protocols
-description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol_actions, protocol_prepare and protocol_submit tools, an opt-in signer policy). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
+description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, consent, spending limits, signers). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.4.5"
+  version: "1.5.0"
   min-cli: ">=0.42.1"
 ---
 
@@ -30,6 +30,10 @@ For completed transactions, see [execution receipts](references/using.md#executi
 Act on a protocol as an agent with a wallet (what can it do, prepare, check,
 sign, submit, and the optional signer):
 [references/agents.md](references/agents.md).
+
+Run steps for users from the app's backend when something happens, inside
+limits each user signed (refunds, recurring buys, claim and re-enter,
+rebalancing): [references/automations.md](references/automations.md).
 
 Before handing a release to a reviewer, walk
 [references/review-checklist.md](references/review-checklist.md).
@@ -205,6 +209,45 @@ session.
 
 See [references/agents.md](references/agents.md).
 
+## Automate Steps for Users
+
+When a step needs the user's own signature but should run without them
+(a refund when a raise fails, a weekly buy, moving a deposit when rates
+change), the app's backend can run it with `@usearete/automations`:
+
+```ts
+// automations.ts: run by `a4 dev up` ([dev.automations] entry), and in
+// production by createAutomations({ client, signer, policy, ... }).use(definition)
+export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
+  automations.on("raise.failed", async (event, ctx) => {
+    const grants = await ctx.consents.list({ step: "refund", instanceId: event.instanceId });
+    return grants.map((g) => ctx.step("refund", { wallet: g.wallet, instance: event.instanceId }));
+  });
+});
+```
+
+- Recommend the least powerful mechanism first: a `keeper` step if anyone may
+  advance it, a direct deposit if the money is committed now, an on-chain
+  allowance for a fixed recurring payment. Automations are for steps the user
+  must sign, from a wallet that already holds their funds.
+- Develop in the dev environment, then mainnet (never devnet): `a4 dev up`
+  runs the definition, forwards the environment's events as signed
+  deliveries and reloads on save; `a4 dev consent` opts a dev wallet in.
+- Triggers: signed webhooks for emitted events (`webhookHandler`), `follow`
+  for one instance's stream, `dispatch` with `scheduleSlot`
+  from the app's cron, and `fromView`, `fromViewRows` or `fromAppendView` for
+  live data. Handlers return steps; they never prepare or sign.
+- Nothing runs without a consent the user signed (`consent.proofMessage`,
+  then `consent.grant`) that states the steps, per-asset limits, settings and
+  expiry. Every step is checked against the consent, the protocol, the
+  committed transactions, a simulation and the signing policy, then signed by
+  the app's signer (`keypairSigner` for dev, `privySigner` for Privy server
+  wallets) and submitted.
+- Production keeps state in Postgres (`postgresStore`, migrations from a
+  deploy step) and is safe across retries, duplicate triggers and replicas.
+
+See [references/automations.md](references/automations.md).
+
 ## Refuse
 
 Do not, and do not help to:
@@ -223,7 +266,16 @@ Do not, and do not help to:
 - configure the MCP signer, widen its policy, or list mainnet in it without
   the user asking; read, print or copy a signer keypair;
 - sign or submit a prepared step whose summary does not match what the user
-  asked for, or retry a policy refusal by loosening the policy.
+  asked for, or retry a policy refusal by loosening the policy;
+- have Arete hold, store or proxy a user's key for automations;
+- automate a step for a wallet without that user's signed consent, beyond
+  its steps, limits or expiry, or pre-tick or bundle the consent with
+  sign-in or a deposit;
+- loosen an automation's signing policy or a provider policy to get a
+  refused step through, or present a provider policy as bounding amounts it
+  lists as `unenforced`;
+- reach for delegated signing when a keeper step, a direct deposit or an
+  on-chain allowance would do.
 
 ## Verify
 
