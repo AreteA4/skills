@@ -50,7 +50,9 @@ a4 dev up
 ```
 
 Init writes the project files and installs System Program builders. It refuses
-to overwrite existing files. Commit source, generated modules and `arete.lock`;
+to overwrite existing files. It also writes `automations/index.ts` and
+`[dev.automations]`, so `a4 dev up` runs the project's automations from the
+first session (see [automations](automations.md)). Commit source, generated modules and `arete.lock`;
 keep `.arete/` ignored.
 
 ```bash

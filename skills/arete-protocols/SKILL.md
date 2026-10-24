@@ -1,9 +1,9 @@
 ---
 name: arete-protocols
-description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, consent, spending limits, signers). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
+description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, schedules, consent, spending limits, signers, deploying to Cloudflare, Vercel or a Node host). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.5.0"
-  min-cli: ">=0.42.1"
+  version: "1.6.0"
+  min-cli: ">=0.45.0"
 ---
 
 # Arete Protocols
@@ -50,7 +50,9 @@ a4 dev up
 `a4 protocol init` scaffolds a template-only tip jar with the System Program
 installed as `@programs/system` (from the registry, or a local IDL when the
 registry can't install it), plus `arete.toml`, `arete.lock`, `package.json`
-and `tsconfig.json`. Start from it instead of writing project files by hand.
+and `tsconfig.json`, and `automations/index.ts` (wired in as
+`[dev.automations]`, so `a4 dev up` runs it). Start from it instead of
+writing project files by hand.
 
 ## Ground Every Program Fact
 
@@ -216,8 +218,8 @@ When a step needs the user's own signature but should run without them
 change), the app's backend can run it with `@usearete/automations`:
 
 ```ts
-// automations.ts: run by `a4 dev up` ([dev.automations] entry), and in
-// production by createAutomations({ client, signer, policy, ... }).use(definition)
+// automations/index.ts: run by `a4 dev up` ([dev.automations] entry), and in
+// production by a host adapter (`npx arete-automations add <host>`)
 export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
   automations.on("raise.failed", async (event, ctx) => {
     const grants = await ctx.consents.list({ step: "refund", instanceId: event.instanceId });
@@ -234,9 +236,10 @@ export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
   runs the definition, forwards the environment's events as signed
   deliveries and reloads on save; `a4 dev consent` opts a dev wallet in.
 - Triggers: signed webhooks for emitted events (`webhookHandler`), `follow`
-  for one instance's stream, `dispatch` with `scheduleSlot`
-  from the app's cron, and `fromView`, `fromViewRows` or `fromAppendView` for
-  live data. Handlers return steps; they never prepare or sign.
+  for one instance's stream, schedules declared with
+  `automations.schedule(name, { every })`, and `fromView`, `fromViewRows` or
+  `fromAppendView` for live data. Handlers return steps; they never prepare
+  or sign.
 - Nothing runs without a consent the user signed (`consent.proofMessage`,
   then `consent.grant`) that states the steps, per-asset limits, settings and
   expiry. Every step is checked against the consent, the protocol, the
@@ -245,6 +248,11 @@ export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
   wallets) and submitted.
 - Production keeps state in Postgres (`postgresStore`, migrations from a
   deploy step) and is safe across retries, duplicate triggers and replicas.
+- Deploy with `npx arete-automations add cloudflare|vercel|node`: it writes
+  the runtime wiring and the host's entry and config, and prints the steps
+  (`a4 install --locked`, migrations, secrets, the host's deploy, then
+  `a4 protocol webhook add` for the endpoint). Each deploy and the webhook
+  registration needs the user's request.
 
 See [references/automations.md](references/automations.md).
 
@@ -268,6 +276,9 @@ Do not, and do not help to:
 - sign or submit a prepared step whose summary does not match what the user
   asked for, or retry a policy refusal by loosening the policy;
 - have Arete hold, store or proxy a user's key for automations;
+- deploy automations to a host or register a webhook endpoint without the
+  user's request, or ship a build that still bundles the dev client (run
+  `a4 install --locked` first);
 - automate a step for a wallet without that user's signed consent, beyond
   its steps, limits or expiry, or pre-tick or bundle the consent with
   sign-in or a deposit;

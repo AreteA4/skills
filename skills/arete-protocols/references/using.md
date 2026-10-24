@@ -160,7 +160,17 @@ the patch with the participant's wallet.
 ## Webhooks
 
 Register an endpoint and subscribe to named events with a secret key. The
-signing secret is returned once. Verify every delivery:
+signing secret is returned once. From the project:
+
+```bash
+a4 protocol webhook add --url https://app.example/arete/webhook   # every event the build declares; --events a,b narrows it
+a4 protocol webhook list
+a4 protocol webhook test <id>        # a signed test delivery now
+a4 protocol webhook remove <id>
+```
+
+`--secret-only` prints just the secret, to pipe into the host's secret store.
+Endpoints must be public https. Verify every delivery:
 
 ```ts
 import { verifyWebhook } from "@usearete/sdk";
