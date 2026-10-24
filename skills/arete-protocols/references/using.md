@@ -236,8 +236,21 @@ dashboard) until the multisig is `active`; `problem` is `not_member` or
 `permissions_invalid` until then. A refused deploy's error carries the
 dashboard link in `details.setupUrl`. Per deployment,
 `client.squads.proposer()` and `client.squads.status(multisig)` still report
-the proposer and its membership. Dev environments keep their own proposer and
-use `a4 dev squads`.
+the proposer and its membership.
+
+Dev environments keep their own proposer and are never checked against the
+account's attachments. There `a4 dev squads` builds every transaction
+locally and dev wallets sign:
+
+```bash
+a4 protocol squads proposer --dev                                 # the proposer <P>
+a4 dev squads create --members alice,bob --threshold 1 --proposer <P>
+# or, for an existing dev multisig:
+a4 dev squads add-proposer --multisig <M> --proposer <P> --wallet alice   # prints the index <n>
+a4 dev squads approve --multisig <M> --index <n> --wallet alice
+a4 dev squads execute --multisig <M> --index <n> --wallet alice
+a4 protocol squads status --dev --multisig <M>                    # ready
+```
 
 While the proposer is missing, admin proposals are parked and retried with
 backoff for up to 24 hours, and the instance stream emits a system event:

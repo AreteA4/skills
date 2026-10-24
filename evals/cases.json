@@ -384,7 +384,7 @@
         "give the proposer Vote or Execute permission or count it toward the threshold",
         "read the Squads step's multisig from the instance or build it in a create step",
         "lead a hardware-wallet team with a raw transaction or code",
-        "ask Arete's API to build or send the Squads transaction (a4 squads add-proposer, --keypair, createSquadsClient or a squads_submit tool)",
+        "ask Arete's API to build or send the Squads transaction (a4 squads add-proposer, a4 protocol squads add-proposer, --keypair, createSquadsClient, squads.addProposer or a squads_submit / protocol_squads_add_proposer tool)",
         "submit the add-proposer transaction through the protocol submit call",
         "hold or sign with a team member's key"
       ]
