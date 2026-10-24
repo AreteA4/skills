@@ -29,7 +29,11 @@ have already committed the money: a direct deposit is simpler.
 ## Set up
 
 Handlers live in a definition, apart from keys, store and URLs, so the same
-code runs under `a4 dev` and in production. In the protocol's project:
+code runs under `a4 dev` and in production. `a4 protocol init` already
+scaffolds one: `automations/index.ts` (a daily recurring tip and a handler
+for `tipJar.opened`), `[dev.automations]` in `arete.toml`, and
+`@usearete/automations` and `tsx` in `package.json`. Edit that file rather
+than starting another. In an older project:
 
 ```bash
 npm install @usearete/automations @usearete/sdk
@@ -137,19 +141,27 @@ automations.on("raise.failed", async (event, ctx) => {
 | A protocol event (`emit` in a reaction), production | `automations.webhookHandler({ secret })`; Express: `expressWebhookHandler` behind `express.raw({ type: "application/json" })` |
 | A protocol event under `a4 dev` | forwarded by `a4 dev up` as signed deliveries; nothing to set up |
 | One instance's events | `automations.follow(instanceId)` |
-| A schedule | the app's cron calls `automations.dispatch(name, payload, { id: scheduleSlot("weekly-buy", "week") })` |
+| A schedule | `automations.schedule("weeklyBuy", { every: "week" })` in the definition, plus `on("weeklyBuy", ...)` |
 | A whole live view (which market is best) | `fromView(view, { name, key, derive, changed, stableFor })` |
 | One signal per row (this position's health) | `fromViewRows(view, { name, key, derive, filter, ... })` |
 | Each row appended to an append view | `fromAppendView(view, { name, ... })` |
 
 - Triggers dedupe on their id: webhook retries, a double cron and restarted
-  streams are harmless. `scheduleSlot` gives the same id for the same UTC
-  `minute`, `hour`, `day`, `week` or `month`.
-- The library has no scheduler. For per-user schedules, dispatch daily and
-  filter grants on their `params`.
+  streams are harmless.
+- `every` is a UTC period (`minute`, `hour`, `day`, `week`, `month`) or an
+  interval of at least a second (`"15m"`). `automations.tick()` dispatches
+  each due slot once, however many replicas or crons call it; the host
+  adapters call it for you. Under `a4 dev up` schedules follow the dev
+  environment's clock, so `a4 dev warp` runs them. For per-user schedules,
+  run daily and filter grants on their `params`. A schedule's slot already
+  runs once per period: do not add a `cooldown` to repeat that, it only
+  stops a wallet with several grants and breaks warping.
+- Outside a definition, `dispatch(name, payload, { id: scheduleSlot(...) })`
+  from your own cron does the same for one slot.
 - Run a view source with `automations.source(src)` on a long-running server
-  (add `{ exclusive: true }` to run it on one replica), or
-  `automations.poll(src)` from a scheduler on serverless.
+  (add `{ exclusive: true }` to run it on one replica). On serverless,
+  `use(definition, { sources: "poll" })` registers list sources for
+  `tick()` to poll; append sources need a long-running server.
 - `stableFor` makes a value hold before it counts (ignores an oracle blip);
   put hysteresis such as a minimum edge in `derive`. A step's `cooldown`
   limits how often a user is acted on. View-driven automations usually want
@@ -249,6 +261,55 @@ against the same shared cases.
   reads the intent first and never re-signs or blindly resubmits; while an
   outcome is unknown, that wallet's other steps wait.
 
+## Deploy to a host
+
+Three layers keep the definition host-agnostic:
+
+| Layer | File | Who writes it |
+| --- | --- | --- |
+| Definition (handlers, schedules, policy) | `automations/index.ts` | init, then you |
+| Runtime: `runtime(env)` returns client, signer, store, simulator, policy | `automations/runtime.ts` | `npx arete-automations add` |
+| Host entry and config | `worker.ts` + `wrangler.jsonc`, `api/arete/[route].ts` + `vercel.json`, or `server.ts` + `Dockerfile` | `npx arete-automations add` |
+
+```bash
+npx arete-automations add cloudflare          # or vercel, node; --signer privy for Privy wallets
+```
+
+It never overwrites a file and prints the remaining steps in order: install
+the dependencies it lists, `a4 protocol deploy` if the release is not
+deployed, `a4 install --locked` (bundle the published client, not the one
+`a4 dev` generated), `DATABASE_URL=... npx arete-automations migrate`, set
+the secrets in the host, deploy with the host's own CLI, then register the
+webhook and store its secret:
+
+```bash
+a4 protocol webhook add --url https://<worker>.workers.dev/arete/webhook --secret-only \
+  | npx wrangler secret put ARETE_WEBHOOK_SECRET
+a4 protocol webhook test <id>                 # a signed test delivery; ids from `a4 protocol webhook list`
+```
+
+- Every adapter serves `POST …/webhook` (verified against
+  `ARETE_WEBHOOK_SECRET` before any runtime is built), `GET|POST …/tick`
+  (`Authorization: Bearer <CRON_SECRET>`) and `GET …/health`.
+- Cloudflare builds a runtime per invocation and closes it after;
+  `wrangler.jsonc` has a one-minute cron for `tick`. Vercel reuses one per
+  instance; `vercel.json` has a cron for `/api/arete/tick`, and environment
+  variables reach only new deployments, so deploy again after adding the
+  webhook secret. Node runs workers, live sources (append sources included)
+  and its own tick; no cron needed.
+- Set `ARETE_CLUSTER=mainnet` in the host: a build whose client still
+  targets the dev environment then fails every request and says to run
+  `a4 install --locked`.
+- `npx arete-automations manifest` prints the definition's events,
+  schedules and sources; `a4 protocol webhook add` subscribes to the
+  build's events by default (`--events` narrows it).
+- For another framework (Hono, Express, Bun, Deno), call
+  `createAutomations(await runtime(env))`, then `automations.use(definition)`,
+  and route requests to `webhookHandler` and `tick` yourself.
+
+Deploying the protocol, deploying to a host and registering a webhook are
+each external changes: do them only when the user asked.
+
 ## Safety model
 
 The protocol's on-chain rules and the wallet provider's policy hold even if
@@ -262,8 +323,9 @@ funds between the user's own positions.
 
 - The handler returns steps only for wallets with a grant for that step, and
   reads current state instead of trusting the trigger's amounts.
-- Schedules dispatch with a `scheduleSlot` id; view sources use `stableFor`
-  and steps that repeat use a `cooldown`.
+- Schedules are declared with `automations.schedule` (or dispatched with a
+  `scheduleSlot` id); view sources use `stableFor`, and view-driven steps
+  that repeat use a `cooldown`.
 - The consent's limits include `SOL` for fees and every asset the step moves,
   and the UI shows human amounts and a revoke control.
 - The policy lists only the deployment, cluster and programs the steps need;
@@ -271,3 +333,6 @@ funds between the user's own positions.
 - Handlers are in a `defineAutomations` module run with `a4 dev up`
   (`[dev.automations]`) before production; tests use `memoryStore()`, and
   every outcome reaches `onOutcome`.
+- Before a host deploy: `a4 install --locked` ran, the host sets
+  `ARETE_CLUSTER=mainnet`, migrations ran from a deploy step, and
+  `GET …/health` reports the expected deployment and cluster.
