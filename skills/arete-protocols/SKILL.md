@@ -2,7 +2,7 @@
 name: arete-protocols
 description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, schedules, consent, spending limits, signers, deploying to Cloudflare, Vercel or a Node host). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.6.0"
+  version: "1.7.0"
   min-cli: ">=0.45.0"
 ---
 
@@ -177,9 +177,14 @@ polls the intent until `completed`, `chain_failed`, `expired` or `rejected`.
 Never resend after `submitted_unknown`.
 
 Protocols with admin steps propose them to the team's Squads multisig through
-a proposer key that belongs to the integrator's account. Onboard it with
-`squads.proposer()`, `squads.addProposer(...)` and `squads.status(...)`, and
-handle the `arete.squads.proposerMissing` event. See
+a proposer key that belongs to the integrator's account. The multisig comes
+from the deployment config (a resource), never from the protocol. Before
+onboarding, ask the user whether they already have a multisig and how its
+members sign (hot wallet, browser wallet, Ledger). Onboard with
+`a4 protocol squads proposer|add-proposer|status`, the
+`protocol_squads_*` MCP tools or the client's `squads.*` methods, or walk them
+through adding the proposer in the Squads app. Activation refuses the
+deployment until the proposer is an Initiate-only member. See
 [references/using.md](references/using.md).
 
 ## Agents with a Wallet
@@ -268,6 +273,8 @@ Do not, and do not help to:
   deployments);
 - deploy, push programs or publish without the user's request;
 - give Arete's Squads proposer the Vote or Execute permission;
+- create a multisig in a protocol's steps, or read a Squads step's multisig
+  from anything but a resource;
 - hold, generate or sign with a role wallet's key on Arete's behalf;
 - resend a transaction whose submission outcome is unknown;
 - put an API key in browser code, or a secret key anywhere but a backend;

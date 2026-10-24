@@ -319,7 +319,8 @@
         "resolve program ids, instructions, accounts and PDAs from the installed program SDKs or exact descriptors",
         "write steps as instruction templates and use a handler only where a template cannot express the step, saying why",
         "declare typed guard codes, derived states with at-times, and access levels",
-        "run arete-protocol check and build"
+        "run arete-protocol check and build",
+        "read the Squads step's multisig from a resource (resources.<name>.multisig) instead of creating one in the create step"
       ],
       "must_not": [
         "guess program ids, argument units or account roles",
@@ -374,15 +375,17 @@
         "arete-protocols"
       ],
       "must": [
-        "read the account's proposer and the multisig status through the protocol client's squads methods",
-        "build the add-proposer proposal with an existing Initiate member and have that member's wallet sign and send it",
-        "tell the team to approve and execute the config proposal in Squads, then re-check status until ready",
-        "handle the arete.squads.proposerMissing event"
+        "ask whether the team already has a multisig and how its members sign before building anything",
+        "read the account's proposer and the multisig status with a4 protocol squads, the MCP tools or the client's squads methods",
+        "offer the Squads app path (add the proposer as a member with Initiate only) for browser or hardware wallets, and the unsigned add-proposer transaction for a member who can sign one",
+        "tell the team to approve and execute the config proposal in Squads, fund the proposer, then re-check status until ready",
+        "keep the multisig in the deployment config (a resource) and deploy or activate again once ready"
       ],
       "must_not": [
         "give the proposer Vote or Execute permission or count it toward the threshold",
         "submit the add-proposer transaction through the protocol submit call",
-        "hold or sign with a team member's key"
+        "hold or sign with a team member's key",
+        "create a multisig in the protocol or read the step's multisig from the instance"
       ]
     },
     {

@@ -32,10 +32,13 @@ Template-only protocols skip review and deploy privately at trust tier
 - [ ] Role steps carry `wallet == instance.roles.<role>`.
 - [ ] Keeper steps need no signer beyond keeper, ephemeral and attestation,
       and cannot move a participant's funds.
-- [ ] Admin steps target the instance's Squads multisig.
-- [ ] The multisig includes `deployment.squadsProposer` with Initiate only
-      (mask `1`): either the create step adds it, or the docs tell the team
-      to add it through Squads onboarding. It never has Vote or Execute and
+- [ ] Admin steps propose to a multisig read from a resource
+      (`resources.<name>.multisig`), never from the instance, args, params,
+      the wallet or a constant; no step creates a multisig.
+- [ ] Every vault an admin step's instructions use names the step's
+      `vaultIndex` (vault 0 when it has none).
+- [ ] The docs tell the team to add `deployment.squadsProposer` to that
+      multisig with Initiate only (mask `1`). It never has Vote or Execute and
       is never counted toward the threshold.
 - [ ] Platform keys come from `deployment.id`, `deployment.attestation` and
       `deployment.squadsProposer`, never hard-coded pubkeys or ids (they
