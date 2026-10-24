@@ -192,10 +192,11 @@ active (the proposer is an Initiate-only member). Set it up in this order:
    proposer → permission Initiate only → approve and execute.
 4. Put the active multisig's address in the deployment config.
 
-Only for hot-wallet members, offer the raw transaction (`a4 squads
-add-proposer <multisig> --member <pubkey> --keypair <file>`, the
-`squads_add_proposer` MCP tool, or `createSquadsClient`). Check with
-`a4 squads status` and handle the `arete.squads.proposerMissing` event. See
+Arete builds no Squads transactions. Only when the user wants it in code (a
+script or a hot-wallet member), use the Arete setup helpers of the Squads v4
+program SDK (`a4 install program squads-v4`); the member's wallet signs.
+Check with `a4 squads status` (or the `squads_status` MCP tool) and handle
+the `arete.squads.proposerMissing` event. See
 [references/using.md](references/using.md).
 
 ## Agents with a Wallet
@@ -285,8 +286,8 @@ Do not, and do not help to:
 - deploy, push programs or publish without the user's request;
 - give Arete's Squads proposer the Vote or Execute permission, or read a
   Squads step's multisig from the instance or a create step;
-- push a hardware-wallet team toward raw transactions instead of the
-  dashboard or the Squads app;
+- push a team toward code or raw transactions instead of the dashboard or
+  the Squads app;
 - hold, generate or sign with a role wallet's key on Arete's behalf;
 - resend a transaction whose submission outcome is unknown;
 - put an API key in browser code, or a secret key anywhere but a backend;
