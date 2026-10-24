@@ -184,10 +184,63 @@ instances if you opted in.
 ## Squads proposer onboarding
 
 Protocols with admin steps propose them to the team's Squads v4 multisig with
-a proposer key that belongs to **your account** (the one whose key creates the
-instances). The proposer may only initiate; Arete never votes or executes. If
-the protocol's create step builds the multisig, it already adds the proposer.
-To bring an existing multisig:
+a proposer key that belongs to **your account** (one proposer for every
+protocol you deploy). The proposer may only initiate; Arete never votes or
+executes. The multisig is the deployment's: the protocol reads it from a
+resource, and each deployment sets it in `[protocol.resources]`.
+
+**Ask first.** Does the team already have a Squads v4 multisig? How do its
+members sign: a hot keypair, a browser wallet, a hardware wallet (Ledger)?
+Never ask for or handle a member's key.
+
+- **No multisig yet**: the team creates one in the Squads app (on a dev
+  environment, `a4 dev squads create --members alice,bob --threshold 1`).
+- **Members sign in a browser wallet or a Ledger**: walk them through the
+  Squads app. Members → Add member → paste the proposer
+  (`a4 protocol squads proposer <deployment>`) → permission **Initiate**
+  only → approve and execute the proposal. Then check the status.
+- **A member can sign a raw transaction**: build the proposal with the CLI,
+  the MCP tool or the client below; the member signs and sends it, then the
+  team approves and executes it in Squads.
+
+Steps, from the CLI (`--dev` for a dev environment):
+
+```bash
+a4 protocol squads proposer <deployment>                                  # the proposer's pubkey
+a4 protocol squads add-proposer <deployment> --multisig <M> --member <member>   # unsigned config proposal
+a4 protocol squads status <deployment> --multisig <M>                     # ready, or the problem
+```
+
+`add-proposer` prints the unsigned transaction; `--keypair <file> --rpc-url
+<url>` signs and sends it as that member (only when the user asks and the
+keypair is theirs). Deploy with `--no-activate` first when the deployment does
+not exist yet. The MCP tools `protocol_squads_proposer`,
+`protocol_squads_status` and `protocol_squads_add_proposer` return the same and
+never sign.
+
+On a dev environment the Squads app cannot see the chain, so `a4 dev squads`
+stands in for it with dev wallets:
+
+```bash
+a4 protocol squads add-proposer --dev --multisig <M> --member alice --send
+a4 dev squads show --multisig <M>                           # the config proposal's index
+a4 dev squads approve --multisig <M> --index <n> --wallet alice
+a4 dev squads execute --multisig <M> --index <n> --wallet alice
+a4 dev fund <proposer> 1
+```
+
+Then fund the proposer: it pays the fee and rent of each proposal (about
+0.01 SOL each). `status` reports `ready`, or the `problem`: `not_member`,
+`permissions_invalid` or `proposer_unfunded`.
+
+Until the proposer is an Initiate-only member, **activation refuses the
+deployment** with a 409 whose message and `details` (`step`, `multisig`,
+`proposer`, `problem`, `commands`) say what to run. Show the user the message
+and follow it; deploy or activate again once `status` is `ready`. Once that
+works, every protocol you deploy can use the same multisig with no further
+onboarding.
+
+From an app:
 
 ```ts
 const raise = arete.protocols.tokenRaise;
@@ -204,10 +257,12 @@ if (!status.ready) {
 
 `addProposer` returns a transaction for the team's member wallet to sign and
 send itself; it is not submitted through `raise.submit`. Re-check `status`
-until `ready` is true (`problem` is `not_member` or `permissions_invalid`).
+until `ready` is true (`problem` is `not_member`, `permissions_invalid` or
+`proposer_unfunded`).
 
-While the proposer is missing, admin proposals are parked and retried with
-backoff for up to 24 hours, and the instance stream emits a system event:
+If the proposer is removed after activation, admin proposals are parked and
+retried with backoff for up to 24 hours, and the instance stream emits a
+system event:
 
 ```ts
 raise.events(id, {
