@@ -240,21 +240,26 @@ create: {
 | Action | Does |
 |---|---|
 | `runKeeperStep` | an Arete keeper prepares, signs and sends a permissionless step |
-| `proposeSquads` | proposes an admin step to the instance's Squads multisig |
+| `proposeSquads` | proposes an admin step to the deployment's Squads multisig |
 | `emit` | publishes a named event to SSE and webhook subscriptions |
 
 ### Admin steps and Squads
 
-A `proposeSquads` reaction proposes an admin step to the instance's Squads v4
-multisig with the integrator's proposer key. Arete only proposes; the team
-votes and executes in Squads. The multisig must therefore include
-`deployment.squadsProposer` as a member with the **Initiate** permission
-only (mask `1`). Either:
+A `proposeSquads` reaction proposes an admin step to the team's Squads v4
+multisig with the deploying account's proposer key. Arete only proposes; the
+team votes and executes in Squads. The multisig is a **resource**: declare
+it (for example `treasury` with a `multisig` pubkey) and set the step's
+authority to `{ kind: "squadsProposer", multisig: "resources.treasury.multisig" }`.
+A multisig read from `instance`, `args` or `wallet`, or built by a create
+step, is refused when the protocol is checked. No protocol creates a
+multisig.
 
-- the create step builds the multisig and adds `deployment.squadsProposer`
-  with mask `1` alongside the team's members, or
-- the team brings an existing multisig and adds the proposer through the
-  onboarding flow (`squads.addProposer`, see [using.md](using.md)).
+The multisig must include the account's proposer as a member with the
+**Initiate** permission only (mask `1`), and production deployments are
+refused (`protocol-squads-setup-required`) until it is an active attachment
+of the account. The team sets that up on the dashboard
+(https://app.arete.run/dashboard/squads) or in the Squads app, and puts the
+address in the deployment config (see [using.md](using.md)).
 
 Never give the proposer Vote or Execute, and never make it a threshold
 signer. If the proposer is missing, proposals are parked and retried, and the

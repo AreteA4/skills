@@ -181,30 +181,66 @@ Payloads carry ids and states only; read details with your own key. Dedupe by
 event id. You receive events for instances your account created, plus shared
 instances if you opted in.
 
-## Squads proposer onboarding
+## Squads multisig setup
 
 Protocols with admin steps propose them to the team's Squads v4 multisig with
-a proposer key that belongs to **your account** (the one whose key creates the
-instances). The proposer may only initiate; Arete never votes or executes. If
-the protocol's create step builds the multisig, it already adds the proposer.
-To bring an existing multisig:
+a proposer key that belongs to **your account** (the one that deploys). The
+proposer may only initiate; Arete never votes or executes. The multisig is
+named in the deployment config (a resource), and production deployment
+create and activation are refused with `protocol-squads-setup-required`
+(message, `details.setupUrl`, `details.commands`) until it is an `active`
+attachment of your account. Attach a multisig once and every protocol you
+deploy can use it.
 
-```ts
-const raise = arete.protocols.tokenRaise;
-const proposer = await raise.squads.proposer();     // { pubkey, permissions: "initiate", rootKeyId }
-const status = await raise.squads.status(multisig); // { ready, member, mask, threshold, problem? }
-if (!status.ready) {
-  // An unsigned config proposal adding the proposer with Initiate only.
-  // `member` is an existing member with Initiate who signs and pays.
-  const built = await raise.squads.addProposer({ multisig, member });
-  await sendWithWallet(built.transactionBase64);    // the member's wallet signs and sends it
-  // The team then approves and executes proposal `built.proposal` in Squads.
-}
+Guide the user in this order:
+
+1. **Declare the multisig as a resource** of the protocol, never read from
+   the instance or built by a create step.
+2. **Ask** whether they already have a Squads multisig, and how its members
+   sign: a hardware wallet, a browser wallet, or a keypair file.
+3. **Send them to the dashboard**, https://app.arete.run/dashboard/squads. It
+   works with any standard browser wallet, including a Ledger through
+   Phantom, Solflare or Backpack. It attaches an existing multisig (and adds
+   the proposer there) or creates a new one with the proposer already a
+   member. For an existing multisig the **Squads app** works too: open the
+   multisig, Members → Add member → paste the proposer → permission
+   **Initiate only** → approve and execute. `a4 squads attach <multisig>`
+   (or the `squads_attach` MCP tool) attaches it by address and prints the
+   proposer to paste.
+4. **Put the active multisig's address in the deployment config**: the
+   dashboard and `a4 squads status <multisig>` show the snippet
+   (`deploymentConfigSnippet`). Then deploy.
+
+Raw transactions come last, only for members whose key is a hot-wallet
+keypair. Arete builds them unsigned; the member signs, Arete sends:
+
+```bash
+a4 squads status                                   # setup, proposer, attachments
+a4 squads add-proposer <multisig> --member <pubkey> --keypair member.json
+a4 squads status <multisig>                        # active once approved and executed
 ```
 
-`addProposer` returns a transaction for the team's member wallet to sign and
-send itself; it is not submitted through `raise.submit`. Re-check `status`
-until `ready` is true (`problem` is `not_member` or `permissions_invalid`).
+```ts
+import { createSquadsClient, squadsSetupRequired } from "@usearete/sdk";
+
+const squads = createSquadsClient({ auth: { secretKey: process.env.ARETE_API_KEY } });
+const { setup, proposer, dashboardUrl } = await squads.status();
+// Hot wallets only: an unsigned config proposal adding the proposer.
+const prepared = await squads.addProposer(multisig, { member });
+const signed = await signWithMemberKeypair(prepared.transactionBase64);
+await squads.submit({ transactionId: prepared.transactionId, signedTransaction: signed });
+// The team then approves and executes the config proposal in Squads.
+```
+
+The add-proposer transaction goes through `squads.submit`, never through a
+protocol client's `submit`. Re-check `squads.status()` (or
+`squads.get(multisig)`) until the multisig is `active`; `problem` is
+`not_member` or `permissions_invalid` until then. On a refused deploy,
+`squadsSetupRequired(error)` gives the step, the multisig and `setupUrl`.
+Rust and Python have the same `SquadsClient`. Per deployment,
+`client.squads.proposer()` and `client.squads.status(multisig)` still report
+the proposer and its membership. Dev environments keep their own proposer and
+use `a4 dev squads`.
 
 While the proposer is missing, admin proposals are parked and retried with
 backoff for up to 24 hours, and the instance stream emits a system event:
@@ -290,9 +326,12 @@ while let Some(event) = events.next().await {
 let payload = verify_token_raise_webhook(&secret, &raw_body, &headers, Default::default())?.payload;
 ```
 
-Squads onboarding: `client.squads().proposer()`,
+Squads (per deployment): `client.squads().proposer()`,
 `client.squads().add_proposer(&ProtocolSquadsAddProposerRequest::new(multisig, member))`
-and `client.squads().status(&multisig)`.
+and `client.squads().status(&multisig)`. Account setup:
+`arete_sdk::protocol::SquadsClient::new(SquadsClientOptions::default())`
+with `status()`, `attach(...)`, `add_proposer(...)` and `submit(...)`
+(dashboard first, as above).
 
 ## Python
 
@@ -327,10 +366,16 @@ async with TokenRaiseSecretClient(auth=AuthConfig(secret_key=key)) as client:
             elif event.type == SQUADS_PROPOSER_MISSING_EVENT:
                 ...                                         # onboard the proposer
 
-    status = await client.squads.status(multisig)
-    if not status["ready"]:
-        built = await client.squads.add_proposer(multisig=multisig, member=member)
-        # the member's wallet signs and sends built["transactionBase64"]
+# Account Squads setup: send the user to the dashboard first; this is for
+# hot-wallet members only.
+from arete.protocol import SquadsClient
+
+async with SquadsClient(api_key=key) as squads:
+    account = await squads.status()                  # setup, proposer, multisigs, dashboardUrl
+    if account["setup"] != "ready":
+        prepared = await squads.add_proposer(multisig, member=member)
+        signed = sign_with_member_keypair(prepared["transactionBase64"])
+        await squads.submit(prepared["transactionId"], signed)
 
 payload = verify_token_raise_webhook(secret, raw_body, headers).payload
 ```

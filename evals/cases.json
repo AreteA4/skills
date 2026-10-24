@@ -374,13 +374,16 @@
         "arete-protocols"
       ],
       "must": [
-        "read the account's proposer and the multisig status through the protocol client's squads methods",
-        "build the add-proposer proposal with an existing Initiate member and have that member's wallet sign and send it",
-        "tell the team to approve and execute the config proposal in Squads, then re-check status until ready",
-        "handle the arete.squads.proposerMissing event"
+        "declare the multisig as a protocol resource and put the attached multisig's address in the deployment config",
+        "ask whether the team already has the multisig and how its members sign (hardware wallet, browser wallet or keypair)",
+        "offer the dashboard page (https://app.arete.run/dashboard/squads) and the Squads-app steps (Members, Add member, the proposer, Initiate only, approve and execute) before any raw transaction",
+        "only for a hot-wallet member, build the add-proposer transaction through the account Squads client, CLI or MCP tool, have that member sign it, and send it with the Squads submit call",
+        "re-check the account Squads status until the multisig is active, and handle the arete.squads.proposerMissing event"
       ],
       "must_not": [
         "give the proposer Vote or Execute permission or count it toward the threshold",
+        "read the Squads step's multisig from the instance or build it in a create step",
+        "lead a hardware-wallet team with a raw transaction",
         "submit the add-proposer transaction through the protocol submit call",
         "hold or sign with a team member's key"
       ]

@@ -32,11 +32,14 @@ Template-only protocols skip review and deploy privately at trust tier
 - [ ] Role steps carry `wallet == instance.roles.<role>`.
 - [ ] Keeper steps need no signer beyond keeper, ephemeral and attestation,
       and cannot move a participant's funds.
-- [ ] Admin steps target the instance's Squads multisig.
-- [ ] The multisig includes `deployment.squadsProposer` with Initiate only
-      (mask `1`): either the create step adds it, or the docs tell the team
-      to add it through Squads onboarding. It never has Vote or Execute and
-      is never counted toward the threshold.
+- [ ] Admin steps read their multisig from a resource
+      (`resources.<name>.multisig`), never from the instance, the args or a
+      create step.
+- [ ] The docs tell the team to attach the multisig on the dashboard
+      (https://app.arete.run/dashboard/squads) or add the proposer in the
+      Squads app with Initiate only (mask `1`), and to put its address in the
+      deployment config. The proposer never has Vote or Execute and is never
+      counted toward the threshold.
 - [ ] Platform keys come from `deployment.id`, `deployment.attestation` and
       `deployment.squadsProposer`, never hard-coded pubkeys or ids (they
       change per deployment and per integrator account).
