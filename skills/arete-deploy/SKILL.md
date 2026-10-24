@@ -132,7 +132,7 @@ Verify after deploying: the status, the deployment id and trust tier, the
 and that `arete.toml` and `arete.lock` changed only as deploy reported.
 
 A protocol's automations deploy to the app's own host (Cloudflare, Vercel or
-a Node container), not to Arete: `npx arete-automations add <host>` writes
+a Node container), not to Arete: `npx @usearete/automations add <host>` writes
 the files and prints the steps, and `a4 protocol webhook add` registers the
 endpoint. See the `arete-protocols` automations reference.
 

@@ -219,7 +219,7 @@ change), the app's backend can run it with `@usearete/automations`:
 
 ```ts
 // automations/index.ts: run by `a4 dev up` ([dev.automations] entry), and in
-// production by a host adapter (`npx arete-automations add <host>`)
+// production by a host adapter (`npx @usearete/automations add <host>`)
 export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
   automations.on("raise.failed", async (event, ctx) => {
     const grants = await ctx.consents.list({ step: "refund", instanceId: event.instanceId });
@@ -248,7 +248,7 @@ export default defineAutomations(TOKEN_RAISE_PROTOCOL, (automations) => {
   wallets) and submitted.
 - Production keeps state in Postgres (`postgresStore`, migrations from a
   deploy step) and is safe across retries, duplicate triggers and replicas.
-- Deploy with `npx arete-automations add cloudflare|vercel|node`: it writes
+- Deploy with `npx @usearete/automations add cloudflare|vercel|node`: it writes
   the runtime wiring and the host's entry and config, and prints the steps
   (`a4 install --locked`, migrations, secrets, the host's deploy, then
   `a4 protocol webhook add` for the endpoint). Each deploy and the webhook
