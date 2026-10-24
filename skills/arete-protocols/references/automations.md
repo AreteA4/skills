@@ -245,8 +245,8 @@ against the same shared cases.
 - `postgresStore(pool)` keeps everything in its own schema
   (`arete_automation` by default); one schema per deployment. Migrations
   never run at startup: call `store.migrate()` from a deploy step, or export
-  them with `npx arete-automations migrations --out db/migrations`. Run with
-  a role limited to rows (`npx arete-automations grants --role <role>`).
+  them with `npx @usearete/automations migrations --out db/migrations`. Run with
+  a role limited to rows (`npx @usearete/automations grants --role <role>`).
 - `memoryStore()` is for tests. A custom store must pass
   `runStoreConformance` from `/testing`.
 - Workers: `automations.start({ concurrency })` and `await automations.stop()`
@@ -268,17 +268,17 @@ Three layers keep the definition host-agnostic:
 | Layer | File | Who writes it |
 | --- | --- | --- |
 | Definition (handlers, schedules, policy) | `automations/index.ts` | init, then you |
-| Runtime: `runtime(env)` returns client, signer, store, simulator, policy | `automations/runtime.ts` | `npx arete-automations add` |
-| Host entry and config | `worker.ts` + `wrangler.jsonc`, `api/arete/[route].ts` + `vercel.json`, or `server.ts` + `Dockerfile` | `npx arete-automations add` |
+| Runtime: `runtime(env)` returns client, signer, store, simulator, policy | `automations/runtime.ts` | `npx @usearete/automations add` |
+| Host entry and config | `worker.ts` + `wrangler.jsonc`, `api/arete/[route].ts` + `vercel.json`, or `server.ts` + `Dockerfile` | `npx @usearete/automations add` |
 
 ```bash
-npx arete-automations add cloudflare          # or vercel, node; --signer privy for Privy wallets
+npx @usearete/automations add cloudflare          # or vercel, node; --signer privy for Privy wallets
 ```
 
 It never overwrites a file and prints the remaining steps in order: install
 the dependencies it lists, `a4 protocol deploy` if the release is not
 deployed, `a4 install --locked` (bundle the published client, not the one
-`a4 dev` generated), `DATABASE_URL=... npx arete-automations migrate`, set
+`a4 dev` generated), `DATABASE_URL=... npx @usearete/automations migrate`, set
 the secrets in the host, deploy with the host's own CLI, then register the
 webhook and store its secret:
 
@@ -300,7 +300,7 @@ a4 protocol webhook test <id>                 # a signed test delivery; ids from
 - Set `ARETE_CLUSTER=mainnet` in the host: a build whose client still
   targets the dev environment then fails every request and says to run
   `a4 install --locked`.
-- `npx arete-automations manifest` prints the definition's events,
+- `npx @usearete/automations manifest` prints the definition's events,
   schedules and sources; `a4 protocol webhook add` subscribes to the
   build's events by default (`--events` narrows it).
 - For another framework (Hono, Express, Bun, Deno), call
