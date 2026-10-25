@@ -2,7 +2,7 @@
 name: arete-programs
 description: Use generated Arete program SDKs, standalone or included in a stack, to read accounts, derive PDAs, build instructions, prepare semantic operations, inspect transactions, or execute them through a wallet. Use for Solana protocol integrations and transaction workflows. Do not use for stack views or subscriptions; use arete-streams. Do not publish a program or deploy a stack; use arete-deploy.
 metadata:
-  version: "1.5.2"
+  version: "1.6.0"
   min-cli: ">=0.36.0"
 ---
 
@@ -122,6 +122,14 @@ Read only the relevant reference:
 - [Python](references/python.md)
 
 Match the project's existing wallet ecosystem. Add an Arete adapter for that ecosystem rather than replacing the application's wallet stack without need.
+
+React rules for sessions (`@usearete/react` 0.47.0 or later; the pattern is in the [React](references/react.md#compose-a-session) reference):
+
+- Use plain `useArete(MY_STACK)` for one stack and its own `arete.programs.<name>`. Compose a session with `AreteSessionProvider` when the UI combines several stacks, standalone programs, or protocols with one auth and one wallet.
+- Render session stacks with `useArete(session?.stacks.<key>, { stack })`. Do not call `Arete.connect` or `useArete(<definition>)` for a stack the session already has.
+- Run standalone program operations and flows with `useOperationMutation`, and pass it the wallet (or set `allowExecutorWallet`). Give the session its wallet through `AreteSessionProvider`'s `wallet` prop; `AreteProvider`'s `wallet` does not reach session members.
+- Keep the definition, `getToken`, and `fetch` stable, or the session reopens.
+- Handle `not-ready` and every wallet error kind; never resend after `submitted-unknown`.
 
 ## Verify
 

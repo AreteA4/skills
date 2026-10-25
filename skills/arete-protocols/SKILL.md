@@ -2,7 +2,7 @@
 name: arete-protocols
 description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads proposer onboarding), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, schedules, consent, spending limits, signers, deploying to Cloudflare, Vercel or a Node host). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.7.0"
+  version: "1.8.0"
   min-cli: ">=0.45.0"
 ---
 
@@ -19,6 +19,9 @@ Two jobs, two references:
 
 - **Author** a protocol: [references/authoring.md](references/authoring.md).
 - **Use** an installed protocol from an app: [references/using.md](references/using.md).
+  In React, use the protocol hooks, and put the protocol in an `AreteSessionProvider`
+  session when the app also uses its stacks or other stacks and programs
+  ([React](references/using.md#react)).
 
 Start, iterate locally and deploy your own protocol with
 [references/local-dev.md](references/local-dev.md), including CLI profiles,

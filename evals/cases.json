@@ -247,6 +247,46 @@
       ]
     },
     {
+      "id": "react-session-stack-and-program",
+      "prompt": "In this React app, show the live positions from the installed stack and the vault account from the installed standalone program, and let the user's connected Wallet Standard wallet deposit into the vault.",
+      "fixture": "React project on @usearete/react 0.47.0 or later with a locked stack, a locked standalone program, generated SDKs, @wallet-standard/react, and a publishable key configured",
+      "expected_skills": [
+        "arete-streams",
+        "arete-programs"
+      ],
+      "must": [
+        "open one session holding the stack and the program with AreteSessionProvider, inside an AreteProvider that supplies the browser auth",
+        "render the stack's views through useArete with the session's stack member, passing the stack definition while the session opens",
+        "read the program account with useAsyncRead on the session's program, and handle the opening and error states",
+        "run the deposit with useOperationMutation and pass it the wallet from useWalletStandardWallet",
+        "handle not-ready and the wallet error kinds, and the Wallet Standard signer error codes",
+        "keep the session definition and auth functions stable across renders"
+      ],
+      "must_not": [
+        "call Arete.connect or useArete with the stack definition for the stack the session already holds",
+        "rely on AreteProvider's wallet to sign for session members",
+        "build the deposit from raw instructions or send it outside a user action",
+        "resend a deposit whose outcome is submitted-unknown"
+      ]
+    },
+    {
+      "id": "react-single-stack-no-session",
+      "prompt": "Add a React page that shows the live ORE board from the installed ORE stack and lets the connected wallet deploy.",
+      "fixture": "React project with the ORE stack installed and a wallet adapter already wired to AreteProvider",
+      "expected_skills": [
+        "arete-streams",
+        "arete-programs"
+      ],
+      "must": [
+        "use useArete with the generated stack and the deploy operation the stack includes",
+        "keep the existing AreteProvider wallet wiring"
+      ],
+      "must_not": [
+        "add AreteSessionProvider or a session for a single stack",
+        "install the ORE program separately"
+      ]
+    },
+    {
       "id": "program-sdk-only",
       "prompt": "Write a script that claims my ORE rewards.",
       "fixture": "initialized TypeScript project without Arete dependencies",

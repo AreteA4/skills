@@ -301,6 +301,43 @@ locally with `a4 stream --dev`. Fields to rely on:
 - Canonical state comes from the API; the stack adds live fields and may
   lag.
 
+## React
+
+`@usearete/react` wraps the generated client in hooks: `useProtocolInstance`,
+`useAllowedSteps`, `useProtocolParticipant`, `useWalletActions` and
+`useProtocolEvents`. Each takes the client and stays disabled while the client
+or a required argument is `null` or `undefined`. Create a standalone client
+once, outside render, with `createProtocolClient(DEFINITION, { auth })`.
+
+When the app also uses the protocol's stacks, other stacks or programs, put the
+protocol in a session instead (`@usearete/react` and `@usearete/sdk` 0.47.0 or
+later). `AreteSessionProvider` opens it with the enclosing `AreteProvider`'s
+auth, and `session.protocols.<key>` is the client:
+
+```tsx
+import { AreteSessionProvider, useAllowedSteps, useAreteSession, useProtocolInstance } from "@usearete/react";
+import TOKEN_RAISE from "./generated/typescript/protocols/token-raise/token-raise";
+
+const APP = { protocols: { raise: TOKEN_RAISE } }; // module level
+
+function Raise({ id, wallet }: { id: string; wallet: string | null }) {
+  const { session } = useAreteSession<typeof APP>();
+  const raise = session?.protocols.raise; // undefined while the session opens; the hooks wait for it
+  const { instance } = useProtocolInstance(raise, id, { wallet: wallet ?? undefined });
+  const steps = useAllowedSteps(raise, { instance: id, wallet }, { refreshOnEvents: true });
+  const contribute = steps.data?.find((step) => step.step === "contribute");
+  return <p>{instance?.state} {contribute?.allowed ? "open" : contribute?.reason}</p>;
+}
+
+// <AreteSessionProvider definition={APP}><Raise id={id} wallet={address} /></AreteSessionProvider>
+```
+
+The protocol's stacks join `session.stacks`: render them with
+`useArete(session?.stacks.<key>, { stack })` as the `arete-streams` React
+reference shows, rather than connecting them again. Steps still go through
+prepare, the wallet signing the returned transactions unchanged, and submit,
+as above. `useOperationMutation` runs program operations, not protocol steps.
+
 ## Rust
 
 ```bash

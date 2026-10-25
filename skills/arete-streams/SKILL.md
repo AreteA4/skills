@@ -2,7 +2,7 @@
 name: arete-streams
 description: Query or subscribe to deployed Arete stack views from TypeScript, React, Rust, Python, the a4 CLI, or the Arete MCP server, and stream a local protocol's stack from a4 dev with a4 stream --dev (including its TUI). Use for dashboards, bots, backends, current-state reads, live entity updates, view filtering, or stream debugging. Do not use for program accounts or transaction construction; use arete-programs for those.
 metadata:
-  version: "1.9.0"
+  version: "1.10.0"
   min-cli: ">=0.42.0"
 ---
 
@@ -138,6 +138,8 @@ Read only the relevant reference:
 - [Python](references/python.md)
 
 Match the existing project language and framework. Do not migrate frameworks merely to follow an example.
+
+In React, `useArete(MY_STACK)` covers one stack and its own program SDKs. When the UI combines several stacks, standalone programs, or protocols behind one auth and one wallet, compose one session with `AreteSessionProvider` and pass `session?.stacks.<key>` to `useArete`; never connect a session's stack a second time. This needs `@usearete/react` 0.47.0 or later; the [React](references/react.md) reference shows the pattern.
 
 ## Authentication and Secrets
 
