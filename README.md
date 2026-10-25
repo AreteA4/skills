@@ -20,7 +20,7 @@ npx skills add AreteA4/skills
 
 When upgrading an existing three-skill installation, run `a4 init -y` once.
 The CLI uses the skills lockfile to remove only the legacy Arete-owned
-`arete-consume` and `arete-build` entries after the five replacements install.
+`arete-consume` and `arete-build` entries after their replacements install.
 
 ## Skills
 

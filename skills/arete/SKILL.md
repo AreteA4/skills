@@ -2,7 +2,7 @@
 name: arete
 description: Discover and install exact Arete stacks, program SDKs or protocols for a Solana application. Use for generic Arete setup, capability discovery, choosing between a stack, a standalone program SDK, a composed stack, or a protocol, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for multi-step app flows and transaction workflows across programs, for running them locally with a4 dev, for an agent acting on a protocol with its own wallet, and for a backend automating protocol steps for users, use arete-protocols; for Rust stack definitions or composing stacks use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
 metadata:
-  version: "1.10.0"
+  version: "1.10.1"
   min-cli: ">=0.42.0"
 ---
 
@@ -42,6 +42,11 @@ Follow the reported `fix` commands when a required check is not ready. If `a4` i
 Do not run setup on every Arete task. A healthy project, a usable generated dependency, or a task that only asks for explanation does not need repeated onboarding.
 
 ## Discovery Workflow
+
+Catalog or knowledge: the catalog (`a4 explore catalog`) finds installable
+programs and stacks; knowledge (`a4 know search`) explains what an on-chain
+protocol does and what its instructions mean. Installs always come from the
+catalog descriptor, never from a knowledge result.
 
 Start from the user's intent, not from a remembered public stack:
 
