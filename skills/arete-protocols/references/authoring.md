@@ -73,18 +73,13 @@ Rules the checker enforces:
 
 ## Expressions
 
-Guards, derivations, reaction conditions, read addresses and templates use
-the stack-source expression language. Names in scope depend on where the
-expression is:
-
-| Name | Available |
-|---|---|
-| `now`, `params.*`, `resources.*` | everywhere |
-| `deployment.id/attestation/squadsProposer` | everywhere, including the create step |
-| `args.*`, `wallet`, `ephemeral.<declared>` | step expressions |
-| `instance.id/state/accounts.*/roles.*` | everywhere except the create step |
-| `participant.id/state/wallet` | participant steps and machine |
-| `reads.<declared>.*` | where the read is declared (never inside another read's address) |
+Guards, derivations, reaction conditions, read addresses and templates are
+expressions. The functions, operators, values, names in scope and what is
+not supported are in [expressions.md](expressions.md). Check a spec against
+the server, not only locally: `npx arete-protocol check` with a secret key in
+`ARETE_API_KEY`, or `a4 protocol deploy --dry-run`. Rejections with their
+fixes are in [troubleshooting.md](troubleshooting.md), and builtin programs
+(and why templates can't call them yet) in [builtins.md](builtins.md).
 
 The `deployment` root names the deployment an expression runs under and the
 platform keys it holds:

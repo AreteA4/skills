@@ -38,6 +38,13 @@ rebalancing): [references/automations.md](references/automations.md).
 Before handing a release to a reviewer, walk
 [references/review-checklist.md](references/review-checklist.md).
 
+Expressions (functions, operators, names in scope, what is not supported):
+[references/expressions.md](references/expressions.md). Rejections with their
+cause and fix: [references/troubleshooting.md](references/troubleshooting.md).
+Builtin programs and glue: [references/builtins.md](references/builtins.md).
+Check a spec against the server before deploying: `npx arete-protocol check`
+with a secret key in `ARETE_API_KEY`, or `a4 protocol deploy --dry-run`.
+
 ## Start a Project
 
 ```bash
