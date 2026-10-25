@@ -1,6 +1,6 @@
 # Skill evaluation matrix
 
-`cases.json` captures the routing and safety behavior that defines the five-skill
+`cases.json` captures the routing and safety behavior that defines the six-skill
 surface. It is intentionally phrased in terms of observable decisions rather
 than required wording.
 
