@@ -246,24 +246,61 @@ create: {
 ### Admin steps and Squads
 
 A `proposeSquads` reaction proposes an admin step to the team's Squads v4
-multisig with the deploying account's proposer key. Arete only proposes; the
-team votes and executes in Squads. The multisig is a **resource**: declare
-it (for example `treasury` with a `multisig` pubkey) and set the step's
-authority to `{ kind: "squadsProposer", multisig: "resources.treasury.multisig" }`.
-A multisig read from `instance`, `args` or `wallet`, or built by a create
-step, is refused when the protocol is checked. No protocol creates a
-multisig.
+multisig with the deploying account's proposer key. Arete only proposes; the team
+votes and executes in Squads.
 
-The multisig must include the account's proposer as a member with the
-**Initiate** permission only (mask `1`), and production deployments are
-refused (`protocol-squads-setup-required`) until it is an active attachment
-of the account. The team sets that up on the dashboard
-(https://app.arete.run/dashboard/squads) or in the Squads app, and puts the
-address in the deployment config (see [using.md](using.md)).
+The multisig is part of the **deployment config**, never the protocol's
+own: declare it as a resource and read it with `resources.<name>`. A
+`squadsProposer` step whose `multisig` reads anything else (the instance,
+args, params, the wallet, or a hard-coded address) fails `arete-protocol
+check` with `squads-multisig-not-from-resources`, and the platform refuses
+the spec on upload. A protocol never creates a multisig in its create step.
 
-Never give the proposer Vote or Execute, and never make it a threshold
-signer. If the proposer is missing, proposals are parked and retried, and the
-instance stream emits `arete.squads.proposerMissing`.
+```ts
+import squads from "@programs/squads";   // a4 install program squads-multisig-program --as squads --ts
+
+const vault = 'pda("squads", "vault", resources.treasury.multisig, 0)';
+
+resources: {
+  treasury: {
+    schema: {
+      type: "object",
+      properties: { multisig: { type: "string", format: "pubkey" } },
+      required: ["multisig"],
+      additionalProperties: false,
+    },
+    description: "The team's Squads v4 multisig.",
+  },
+},
+steps: {
+  pay: {
+    scope: "instance",
+    authority: { kind: "squadsProposer", multisig: "resources.treasury.multisig" },
+    build: [ix(system, "transfer", {
+      args: { lamports: "params.amount" },
+      accounts: { fundingAccount: vault, recipientAccount: "instance.roles.recipient" },
+    })],
+  },
+},
+reactions: [{ id: "proposePayout", trigger: { kind: "onTransition", machine: "instance", from: [], to: ["requested"] },
+              action: { kind: "proposeSquads", step: "pay" } }],
+```
+
+Each deployment sets the value (`[protocol.resources] treasury =
+"treasury.json"`, `{ "multisig": "<address>" }`). The step acts from vault 0
+unless it sets `vaultIndex` (1 to 255); the `vault` expression the
+instructions use must name the same index. Give protocols that share a
+multisig their own `vaultIndex` to keep their funds apart.
+
+The multisig must include `deployment.squadsProposer` as a member with the
+**Initiate** permission only (mask `1`). Never give the proposer Vote or
+Execute, and never make it a threshold signer. Production deployments are
+refused (`protocol-squads-setup-required`) until the multisig is an active
+attachment of the account; the team sets that up on the dashboard
+(https://app.arete.run/dashboard/squads) or in the Squads app (see
+[using.md](using.md)). If the proposer is removed later, proposals are
+parked and retried, and the instance stream emits
+`arete.squads.proposerMissing`.
 
 Use `runKeeperStep` or `proposeSquads` when no off-chain decision is needed.
 When one is (resolve a market, accept an offer, approve KYC), `emit` an event,

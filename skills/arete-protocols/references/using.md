@@ -184,7 +184,8 @@ instances if you opted in.
 ## Squads multisig setup
 
 Protocols with admin steps propose them to the team's Squads v4 multisig with
-a proposer key that belongs to **your account** (the one that deploys). The
+a proposer key that belongs to **your account** (the one that deploys; one
+proposer for every protocol you deploy). The
 proposer may only initiate; Arete never votes or executes. The multisig is
 named in the deployment config (a resource), and production deployment
 create and activation are refused with `protocol-squads-setup-required`
@@ -233,7 +234,10 @@ The member's own wallet signs and sends, like any other transaction; never
 hold or sign with a member's key, and never send it through a protocol
 client's `submit`. Then re-check `a4 squads status <multisig>` (or the
 dashboard) until the multisig is `active`; `problem` is `not_member` or
-`permissions_invalid` until then. A refused deploy's error carries the
+`permissions_invalid` until then. Fund the proposer too: it pays the fee and
+rent of each proposal, and `a4 protocol squads status` reports
+`proposer_unfunded` while it has too little SOL (`a4 dev fund <proposer> 1`
+on a dev environment). A refused deploy's error carries the
 dashboard link in `details.setupUrl`. Per deployment,
 `client.squads.proposer()` and `client.squads.status(multisig)` still report
 the proposer and its membership.
@@ -252,8 +256,9 @@ a4 dev squads execute --multisig <M> --index <n> --wallet alice
 a4 protocol squads status --dev --multisig <M>                    # ready
 ```
 
-While the proposer is missing, admin proposals are parked and retried with
-backoff for up to 24 hours, and the instance stream emits a system event:
+If the proposer is removed after activation, admin proposals are parked and
+retried with backoff for up to 24 hours, and the instance stream emits a
+system event:
 
 ```ts
 raise.events(id, {

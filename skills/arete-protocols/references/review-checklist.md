@@ -32,9 +32,11 @@ Template-only protocols skip review and deploy privately at trust tier
 - [ ] Role steps carry `wallet == instance.roles.<role>`.
 - [ ] Keeper steps need no signer beyond keeper, ephemeral and attestation,
       and cannot move a participant's funds.
-- [ ] Admin steps read their multisig from a resource
-      (`resources.<name>.multisig`), never from the instance, the args or a
-      create step.
+- [ ] Admin steps propose to a multisig read from a resource
+      (`resources.<name>.multisig`), never from the instance, args, params,
+      the wallet or a constant; no step creates a multisig.
+- [ ] Every vault an admin step's instructions use names the step's
+      `vaultIndex` (vault 0 when it has none).
 - [ ] The docs tell the team to attach the multisig on the dashboard
       (https://app.arete.run/dashboard/squads) or add the proposer in the
       Squads app with Initiate only (mask `1`), and to put its address in the

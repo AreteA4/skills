@@ -190,7 +190,9 @@ active (the proposer is an Initiate-only member). Set it up in this order:
    Ledger included; it attaches an existing multisig or creates one), or, for
    an existing multisig, the Squads app: Members → Add member → paste the
    proposer → permission Initiate only → approve and execute.
-4. Put the active multisig's address in the deployment config.
+4. Fund the proposer with a little SOL (it pays each proposal's fee and
+   rent), put the active multisig's address in the deployment config, and
+   deploy again.
 
 Arete builds no Squads transactions. Only when the user wants it in code (a
 script or a hot-wallet member), use the Arete setup helpers of the Squads v4
@@ -284,8 +286,9 @@ Do not, and do not help to:
   decisions; self-serve activation covers only private template-only
   deployments);
 - deploy, push programs or publish without the user's request;
-- give Arete's Squads proposer the Vote or Execute permission, or read a
-  Squads step's multisig from the instance or a create step;
+- give Arete's Squads proposer the Vote or Execute permission;
+- create a multisig in a protocol's steps, or read a Squads step's multisig
+  from anything but a resource;
 - push a team toward code or raw transactions instead of the dashboard or
   the Squads app;
 - hold, generate or sign with a role wallet's key on Arete's behalf;

@@ -319,7 +319,8 @@
         "resolve program ids, instructions, accounts and PDAs from the installed program SDKs or exact descriptors",
         "write steps as instruction templates and use a handler only where a template cannot express the step, saying why",
         "declare typed guard codes, derived states with at-times, and access levels",
-        "run arete-protocol check and build"
+        "run arete-protocol check and build",
+        "read the Squads step's multisig from a resource (resources.<name>.multisig) instead of creating one in the create step"
       ],
       "must_not": [
         "guess program ids, argument units or account roles",
@@ -378,7 +379,8 @@
         "ask whether the team already has the multisig and how its members sign (hardware wallet, browser wallet or keypair)",
         "offer the dashboard page (https://app.arete.run/dashboard/squads) and the Squads-app steps (Members, Add member, the proposer, Initiate only, approve and execute) before any code",
         "only when the user wants it in code, use the squads-v4 program SDK's Arete setup helpers (a4 install program squads-v4) and have the member's own wallet sign and send it",
-        "re-check the account Squads status (a4 squads status or the squads_status MCP tool) until the multisig is active, and handle the arete.squads.proposerMissing event"
+        "re-check the account Squads status (a4 squads status or the squads_status MCP tool) until the multisig is active, fund the proposer, and handle the arete.squads.proposerMissing event",
+        "deploy again once the multisig is active"
       ],
       "must_not": [
         "give the proposer Vote or Execute permission or count it toward the threshold",
@@ -386,7 +388,8 @@
         "lead a hardware-wallet team with a raw transaction or code",
         "ask Arete's API to build or send the Squads transaction (a4 squads add-proposer, a4 protocol squads add-proposer, --keypair, createSquadsClient, squads.addProposer or a squads_submit / protocol_squads_add_proposer tool)",
         "submit the add-proposer transaction through the protocol submit call",
-        "hold or sign with a team member's key"
+        "hold or sign with a team member's key",
+        "create a multisig in the protocol"
       ]
     },
     {
