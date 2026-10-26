@@ -2,7 +2,7 @@
 name: arete-protocols
 description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads multisig setup), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, schedules, consent, spending limits, signers, deploying to Cloudflare, Vercel or a Node host). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.7.0"
+  version: "1.8.0"
   min-cli: ">=0.47.0"
 ---
 
@@ -42,17 +42,19 @@ Before handing a release to a reviewer, walk
 
 ```bash
 a4 protocol init my-protocol && cd my-protocol
+a4 init -y
 npm install
 npx arete-protocol check
 a4 dev up
 ```
 
 `a4 protocol init` scaffolds a template-only tip jar with the System Program
-installed as `@programs/system` (from the registry, or a local IDL when the
-registry can't install it), plus `arete.toml`, `arete.lock`, `package.json`
-and `tsconfig.json`, and `automations/index.ts` (wired in as
-`[dev.automations]`, so `a4 dev up` runs it). Start from it instead of
-writing project files by hand.
+installed as `@programs/system` from the registry, plus `arete.toml`,
+`arete.lock`, `package.json` and `tsconfig.json`, and `automations/index.ts`
+(wired in as `[dev.automations]`, so `a4 dev up` runs it). If the registry
+install fails, init stops with the error and never substitutes a local IDL.
+`a4 init -y` then adds the agent instructions, skills and MCP config. Start
+from it instead of writing project files by hand.
 
 ## Ground Every Program Fact
 
