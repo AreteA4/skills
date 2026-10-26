@@ -29,6 +29,8 @@ server's.
 | `protocol-spec-check-failed` | An expression failed; `errors` entries carry the codes below | Fix each `path` |
 | `protocol-template-check-failed` | A template doesn't match its program; `errors` entries carry template codes | Fix each `path` |
 | `protocol-bundle-mismatch` | Handler steps without `handlers.mjs`, or a bundle with a template-only spec | Upload exactly the build's files |
+| `protocol-bundle-invalid` / `protocol-bundle-too-large` | The bundle is not canonical base64, or is over the size limit | Upload the build's `handlers.mjs` |
+| `plan-capability-required` | The account's plan cannot create protocols | See `a4 auth whoami` |
 
 Expression codes inside `errors`:
 
@@ -37,7 +39,9 @@ Expression codes inside `errors`:
 | `unknown-reference` | Name out of scope | See [expressions.md](expressions.md#names-in-scope) |
 | `unsupported-feature` | Function, operator or character the language lacks, float math, a non-literal `??` default | See [expressions.md](expressions.md#not-supported-and-what-to-write-instead) |
 | `expression-type-mismatch` | Wrong type: a non-boolean guard, a non-pubkey account, a non-integer wrap amount, a bad function argument | Compare expected and found; cast where meant |
-| `invalid-expression` | Syntax, arity, or a non-literal where a literal is required | Fix at the offset |
+| `invalid-expression` | Syntax, arity, a non-literal where a literal is required, or an index that is not an integer literal | Fix at the offset; index with a literal, or use `in` |
+| `index-out-of-range` | A literal index at or past the array's `maxItems` | Use a lower index, or raise `maxItems` |
+| `squads-multisig-not-from-resources` | A Squads step's multisig reads more than `resources.*` and literals | Declare a resource and use it |
 | `source-limit-exceeded` | Over 2048 bytes, 1024 nodes or 64 levels | Split the logic |
 
 Template codes inside `errors` (`path` ends in `/build/instructions/<i>/...`):
@@ -57,6 +61,7 @@ Template codes inside `errors` (`path` ends in `/build/instructions/<i>/...`):
 | `protocol-template-check-pending` | Arete lacks a pinned program spec; `errors` names each (`protocol-program-spec-missing`, `/programs/<alias>`) | Publish or install the program, activate again |
 | `protocol-template-check-failed` | Stored template check failed; `errors` lists why | Fix, rebuild, deploy a new release |
 | `protocol-resource-unpublished` | A declared resource has no published version; `errors` names each | Publish each resource |
+| `protocol-fee-policy-missing` | The deployment has no fee policy | Create the deployment with a fee policy |
 | `protocol-review-required` | The release has handler code | An operator reviews it |
 
 ## Prepare and submit
@@ -67,8 +72,11 @@ Template codes inside `errors` (`path` ends in `/build/instructions/<i>/...`):
 | `instance_terminal` / `participant_terminal` | The instance or participant has finished | Use another instance |
 | `step_not_client_callable` | Keeper or admin step | Keepers and operators run it |
 | `step_requires_secret_key` | Secret step | Use a secret-key session |
+| `step_scope_mismatch` | The step isn't prepared on this route (a create step on an instance) | Use the route for the step's scope |
+| `protocol-deployment-inactive` | The deployment is not active | Activate it |
 | `protocol-args-invalid` | Args don't match the schema | Fix the named field |
 | `template_evaluation_failed` | An expression failed while building (null, overflow) | Guard against the case |
 | `template_encode_failed` | A value doesn't fit the IDL type | Bound it with a guard, or cast |
 | `transaction-entitlement-required` | The account can't use the managed transaction gateway | See `a4 auth whoami` |
 | `execution_intent_expired` | Prepared too long ago | Prepare again |
+| `idempotency_key_conflict` | The idempotency key was used for a different request | Use a new key |
