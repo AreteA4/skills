@@ -42,6 +42,46 @@ export function App() {
 
 Use `.use()` for a live state/list result and `.useOne()` for the first list result. Pass `undefined` to a state hook when a dependent key is not ready; do not call hooks conditionally.
 
+## Several Stacks, Programs, or Protocols: a Session
+
+Requires `@usearete/react` and `@usearete/sdk` 0.47.0 or later, as installed by `a4` 0.47.0 or later. On older releases, call `useArete(stack)` for each stack.
+
+Keep `useArete(MY_STACK)` for one stack, including its own `arete.programs.<name>`. When the UI also needs other stacks, standalone programs, or protocols behind one auth and one wallet, open one session with `AreteSessionProvider` and pass its stack members to `useArete`:
+
+```tsx
+import { AreteProvider, AreteSessionProvider, useArete, useAreteSession } from '@usearete/react';
+import { MY_STACK } from './generated/my-stack';
+import { OTHER_STACK } from './generated/other-stack';
+
+const APP = { stacks: { app: MY_STACK, other: OTHER_STACK } }; // module level
+
+function Positions({ owner }: { owner: string }) {
+  const { session } = useAreteSession<typeof APP>();
+  // `null` while the session opens; `stack` gives typed placeholders until then.
+  const app = useArete(session?.stacks.app, { stack: APP.stacks.app });
+  const position = app.views.Position.state.use({ owner });
+
+  if (app.status === 'error') return <button onClick={() => void app.retry()}>Reconnect</button>;
+  if (position.status !== 'ready') return <p>Loading…</p>;
+  return <p>{position.data ? String(position.data.size) : 'No position'}</p>;
+}
+
+export function App() {
+  return (
+    <AreteProvider auth={{ publishableKey: import.meta.env.VITE_ARETE_PUBLISHABLE_KEY }}>
+      <AreteSessionProvider definition={APP}>
+        <Positions owner="…" />
+      </AreteSessionProvider>
+    </AreteProvider>
+  );
+}
+```
+
+- The member hooks read the session's connection and store, so nothing connects twice, and unmounting never disconnects the member. Do not call `Arete.connect`, or `useArete(MY_STACK)` with the definition, for a stack the session already has.
+- The session takes `auth` and `fetch` from the enclosing `AreteProvider` unless `options` sets them. Changing the definition or options reopens the session; functions such as `getToken` and `fetch` compare by identity, so keep them stable.
+- Once the session is open, `useArete(session.stacks.app)` needs no `stack`. A reopened session gives new members, and the hooks move to them.
+- For program reads, transactions, and the session's wallet, follow the Compose a Session section of the `arete-programs` React reference.
+
 ## Stack Reads for Derived State
 
 For derived "current X" state, use the stack's reads first. `arete.read.*` functions come from the stack's extension and combine views, program accounts, and chain state into one value. ORE's `read.currentRound`, for example, returns the current board and round with the round's phase, so the app does not rebuild that from several view hooks and the clock.

@@ -38,7 +38,9 @@ Pick the key by where the code runs:
 
 `secretKey` throws in a browser, as does a secret or agent key passed as `publishableKey`. A publishable key passed as `secretKey` is refused everywhere.
 
-Use `Arete.connect(MY_STACK, options)` for one direct stack client. The generated stack contains default endpoints; override `url` or `httpUrl` only for an intentional local or alternate binding.
+Use `Arete.connect(MY_STACK, options)` for one direct stack client. The generated stack contains default endpoints; override `url` or `httpUrl` only for an intentional local or alternate binding. Do not also call `Arete.connect` for a stack a session already holds; use `session.stacks.<key>`.
+
+From `@usearete/sdk` 0.47.0, a connected client and each `session.stacks.<key>` expose `stack`, the stack definition it was connected for (with attached programs), and `transport`: `'ws'` when it opened the streaming WebSocket, `'http'` when it did not. Check `transport` before waiting on the stream. In React, open the session with `AreteSessionProvider` (see the [React](react.md) reference).
 
 ## Stack Reads for Derived State
 
