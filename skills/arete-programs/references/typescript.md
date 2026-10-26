@@ -51,7 +51,9 @@ TypeScript rules:
 - Semantic inputs are normally camelCase; raw IDL inputs retain their generated raw names.
 - Large integer instruction values use `bigint` unless a semantic operation accepts a UI amount object.
 - `createSession` is preferred for shared wallets and multiple stacks/programs.
-- `Arete.connect` remains suitable for one stack.
+- `Arete.connect` remains suitable for one stack. Do not call it for a stack the session already holds.
 - Close sessions in scripts and tests.
+- In React, let `AreteSessionProvider` open and close the session instead of calling `createSession` in a component (`@usearete/react` 0.47.0+, see [React](react.md#compose-a-session)).
+- From `@usearete/sdk` 0.47.0, each `session.stacks.<key>` exposes `stack` and `transport` (`'ws'` or `'http'`). Wait for a processed slot only on a member whose `transport` is `'ws'`.
 
 Current references: `https://docs.arete.run/sdks/typescript/` and `https://docs.arete.run/using-stacks/transactions/`.

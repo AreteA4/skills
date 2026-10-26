@@ -19,6 +19,9 @@ Two jobs, two references:
 
 - **Author** a protocol: [references/authoring.md](references/authoring.md).
 - **Use** an installed protocol from an app: [references/using.md](references/using.md).
+  In React, use the protocol hooks, and put the protocol in an `AreteSessionProvider`
+  session when the app also uses its stacks or other stacks and programs
+  ([React](references/using.md#react)).
 
 Start, iterate locally and deploy your own protocol with
 [references/local-dev.md](references/local-dev.md), including CLI profiles,
