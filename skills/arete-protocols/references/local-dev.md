@@ -44,6 +44,7 @@ and help rather than introducing an operator-specific binary path.
 ```bash
 a4 protocol init my-protocol
 cd my-protocol
+a4 init -y
 npm install
 npx arete-protocol check
 a4 dev up
