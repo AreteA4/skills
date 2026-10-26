@@ -2,7 +2,7 @@
 name: arete-protocols
 description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads multisig setup), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, schedules, consent, spending limits, signers, deploying to Cloudflare, Vercel or a Node host). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.8.0"
+  version: "1.9.0"
   min-cli: ">=0.47.0"
 ---
 
@@ -37,6 +37,13 @@ rebalancing): [references/automations.md](references/automations.md).
 
 Before handing a release to a reviewer, walk
 [references/review-checklist.md](references/review-checklist.md).
+
+Expressions (functions, operators, names in scope, what is not supported):
+[references/expressions.md](references/expressions.md). Rejections with their
+cause and fix: [references/troubleshooting.md](references/troubleshooting.md).
+Builtin programs and glue: [references/builtins.md](references/builtins.md).
+Check a spec against the server before deploying: `npx arete-protocol check`
+with a secret key in `ARETE_API_KEY`, or `a4 protocol deploy --dry-run`.
 
 ## Start a Project
 
