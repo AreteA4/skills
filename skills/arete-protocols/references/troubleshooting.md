@@ -61,7 +61,7 @@ Template codes inside `errors` (`path` ends in `/build/instructions/<i>/...`):
 | `protocol-template-check-pending` | Arete lacks a pinned program spec; `errors` names each (`protocol-program-spec-missing`, `/programs/<alias>`) | Publish or install the program, activate again |
 | `protocol-template-check-failed` | Stored template check failed; `errors` lists why | Fix, rebuild, deploy a new release |
 | `protocol-resource-unpublished` | A declared resource has no published version; `errors` names each | Publish each resource |
-| `protocol-fee-policy-missing` | The deployment has no fee policy | Create the deployment with a fee policy |
+| `protocol-fee-policy-missing` | The deployment's fees are missing on Arete's side | Deploy again; if it persists, contact Arete support |
 | `protocol-review-required` | The release has handler code | An operator reviews it |
 
 ## Prepare and submit

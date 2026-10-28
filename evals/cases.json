@@ -356,7 +356,7 @@
       ],
       "must": [
         "preview with a4 protocol deploy --dry-run (which builds the project) before deploying",
-        "deploy with a4 protocol deploy as a private deployment and supply a fee policy for a new deployment",
+        "deploy with a4 protocol deploy as a private deployment without writing a fee policy (Arete sets the fees)",
         "explain that the deployment runs at trust tier unreviewed and is private",
         "report the registryPackage outcome and, if it was skipped with package-version-immutable, propose bumping the spec version instead of retrying"
       ],
