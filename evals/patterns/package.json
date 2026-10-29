@@ -1,0 +1,12 @@
+{
+  "name": "arete-protocol-patterns",
+  "private": true,
+  "type": "module",
+  "description": "The snippets of skills/arete-protocols/references/patterns.md, each checked with `arete-protocol check --remote` by scripts/check-patterns.mjs.",
+  "dependencies": {
+    "@usearete/protocol": "^0.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
