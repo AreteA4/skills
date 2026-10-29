@@ -3,7 +3,7 @@ name: arete-deploy
 description: Publish Solana ProgramSpecs and plan, deploy, inspect, stop, archive, promote, or delete hosted Arete resources. Use for a4 program lifecycle, a4 up, deployment branches/previews, hosted stack operations, and taking an Arete Protocol to a private hosted deployment with a4 protocol deploy (review, activation outcomes, the owner-private registry package). This skill performs external mutations only when the user's request authorizes them; use arete-stack-authoring for local DSL and artifact work and arete-protocols for protocol authoring and a4 dev.
 metadata:
   version: "1.4.0"
-  min-cli: ">=0.45.0"
+  min-cli: ">=0.49.0"
 ---
 
 # Publish and Operate Hosted Arete Resources
