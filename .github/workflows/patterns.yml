@@ -1,0 +1,38 @@
+name: Patterns
+
+on:
+  pull_request:
+    paths:
+      - "evals/patterns/**"
+      - "skills/arete-protocols/references/patterns.md"
+      - "scripts/check-patterns.mjs"
+      - ".github/workflows/patterns.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  patterns:
+    name: Pattern snippets pass the server's check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install the pattern protocols' dependencies
+        working-directory: evals/patterns
+        run: npm ci
+
+      # ARETE_API_KEY is a secret key of a disposable account: the check only
+      # validates, it uploads and deploys nothing. Without it (pull requests
+      # from forks) only the local check runs, with a warning.
+      - name: Check the snippets
+        env:
+          ARETE_API_KEY: ${{ secrets.ARETE_API_KEY }}
+        run: node scripts/check-patterns.mjs
