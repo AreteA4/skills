@@ -26,7 +26,7 @@ The CLI uses the skills lockfile to remove only the legacy Arete-owned
 
 | Skill | Use it for |
 | --- | --- |
-| `arete-sandbox` | Act from a sandbox wallet within its owner's rules: the discover → preview → invoke loop, refusals and retries, history and holdings |
+| `arete-sandbox` | Act from a sandbox wallet within its owner's rules: list and select granted sandboxes, the discover → preview → invoke loop, refusals and retries, reads through the sandbox, history and holdings |
 | `arete` | Discover capabilities, choose between a stack and a program SDK, inspect exact descriptors, and manage project dependencies |
 | `arete-streams` | Query and subscribe to typed stack views from TypeScript, React, Rust, or Python, and stream a local protocol's stack with `a4 stream --dev` |
 | `arete-programs` | Read program accounts and prepare, inspect, or execute program operations, standalone or through a stack |
