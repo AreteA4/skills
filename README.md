@@ -4,7 +4,7 @@ Task-focused skills for building with [Arete](https://docs.arete.run), the typed
 
 ## Install
 
-The normal agent onboarding flow installs the CLI, all six skills, and the Arete MCP servers:
+The normal agent onboarding flow installs the CLI, the skills your account can use, and the Arete MCP servers:
 
 ```bash
 curl -fsSL https://arete.run/install.sh | sh
@@ -26,6 +26,7 @@ The CLI uses the skills lockfile to remove only the legacy Arete-owned
 
 | Skill | Use it for |
 | --- | --- |
+| `arete-sandbox` | Act from a sandbox wallet within its owner's rules: the discover → preview → invoke loop, refusals and retries, history and holdings |
 | `arete` | Discover capabilities, choose between a stack and a program SDK, inspect exact descriptors, and manage project dependencies |
 | `arete-streams` | Query and subscribe to typed stack views from TypeScript, React, Rust, or Python, and stream a local protocol's stack with `a4 stream --dev` |
 | `arete-programs` | Read program accounts and prepare, inspect, or execute program operations, standalone or through a stack |
@@ -33,7 +34,7 @@ The CLI uses the skills lockfile to remove only the legacy Arete-owned
 | `arete-deploy` | Publish programs, plan or operate hosted stack deployments, and deploy protocols privately with `a4 protocol deploy` |
 | `arete-protocols` | Scaffold and author Arete Protocols, iterate on them locally with `a4 dev` and the generated client, deploy them privately and install the result, call installed protocols from TypeScript, Rust, or Python apps, let an agent act on a protocol with its own wallet (`a4 protocol actions`, the MCP protocol tools, an opt-in signer policy), and automate steps for users from a backend inside limits they signed (`@usearete/automations`) |
 
-All six skills are installed together. Their descriptions select the smallest relevant workflow at runtime; users do not need to choose individual skills during setup.
+`a4 init` installs the skills that match the account's command groups (an account with no groups reported gets every skill). Their descriptions select the smallest relevant workflow at runtime; users do not need to choose individual skills during setup.
 
 ## Sources of Truth
 
