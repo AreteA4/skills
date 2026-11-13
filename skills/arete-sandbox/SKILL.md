@@ -2,7 +2,7 @@
 name: arete-sandbox
 description: Act from an Arete sandbox, a funded Solana wallet the agent uses without holding its key, inside rules its owner signed. Use when the sandbox_* MCP tools are listed, or when the user asks the agent to choose a sandbox, trade, swap, withdraw, check a sandbox's balance, holdings, rules or history, read program accounts or live views through a sandbox, or explain a sandbox refusal. Covers listing and selecting sandboxes, the discover → preview → invoke loop, refusals and retries, sandbox-scoped reads, and a4 sandbox. Do not use for protocol steps, dev environments or app wallets; use arete-protocols or arete-programs for those.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   min-cli: ">=0.55.0"
 ---
 
@@ -62,7 +62,7 @@ share the saved choice with `a4 mcp` started in the same folder.
 ## The loop: discover → preview → invoke
 
 1. `sandbox_status`: which sandbox this is, the wallet address, balances and
-   the actions you hold (`invoke`, `swap`, `withdraw`). Start here.
+   the actions you hold (`invoke`, `withdraw`). Start here.
 2. `sandbox_rules`: the enabled programs, each instruction's arguments and
    accounts, spend limits, the allowlist and the baseline. Use only what it
    lists, named exactly as it names them.
@@ -82,14 +82,38 @@ before you run anything they did not explicitly ask for.
 | `action`   | `args`                                                                                                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `invoke`   | `{ instructions: [{ program, instruction, args?, accounts?, remainingAccounts? }], computeUnitLimit?, computeUnitPriceMicroLamports?, transactionFormat? }` |
-| `swap`     | `{ inputMint, outputMint, amount, slippageBps?, computeUnitLimit?, computeUnitPriceMicroLamports? }`                                                         |
 | `withdraw` | `{ lamports, transactionFormat? }`: SOL to the owner's wallet, the only destination                                                                         |
 
 - `invoke` takes 1 to 8 instructions. The sandbox wallet is the only signer.
 - Accounts with a `fill` in `sandbox_rules` (`fixed`, `wallet`, `derived`)
   can be left out. A refusal's `missingAccounts` lists the ones still needed.
 - Pass u64 and u128 amounts as decimal strings, in the smallest unit.
-- `swap` amounts are in the input mint's smallest unit.
+
+## Swaps
+
+There is no swap action. A swap is an `invoke` of the instructions that make
+it, checked like any other:
+
+1. Resolve the venue.
+   - A venue's own instructions, when you know the pool: PumpSwap (pump-amm)
+     `buy`/`sell` for a coin that has left its Pump.fun bonding curve,
+     Pump.fun `buy`/`sell` on the curve, or a DEX's own swap instruction.
+     Prefer this when it is enough.
+   - A Jupiter route, for the best price across venues: quote with Jupiter's
+     Swap API (about 50 `maxAccounts`, so it fits a v1 transaction: 64
+     accounts, no lookup tables), then `/swap-instructions` with the sandbox
+     wallet as the user. Routes fill only through venues the rules enable.
+2. Write the `invoke`: each instruction named as `sandbox_rules` lists it
+   (Jupiter's swap is one of its listed instructions, such as `route_v2`),
+   `args` decoded from the instruction data with the IDL types
+   `sandbox_rules` gives, the named accounts, and the route's extra accounts
+   in `remainingAccounts`. Setup such as creating a token account or wrapping
+   SOL is baseline: put it in the same action, in order.
+3. `sandbox_preview` with `action: "invoke"` until it passes, then
+   `sandbox_invoke` with the same arguments.
+
+If a preview refuses a venue's program or instruction, the rules do not
+allow it: try a venue they do allow, or tell the owner what to enable.
 
 ## Exactly once
 
