@@ -85,9 +85,59 @@ before you run anything they did not explicitly ask for.
 | `withdraw` | `{ lamports, transactionFormat? }`: SOL to the owner's wallet, the only destination                                                                         |
 
 - `invoke` takes 1 to 8 instructions. The sandbox wallet is the only signer.
-- Accounts with a `fill` in `sandbox_rules` (`fixed`, `wallet`, `derived`)
-  can be left out. A refusal's `missingAccounts` lists the ones still needed.
+- Accounts with a `fill` in `sandbox_rules` can be left out (see Finding
+  accounts below).
 - Pass u64 and u128 amounts as decimal strings, in the smallest unit.
+
+## Finding accounts
+
+You need no SDK to fill an instruction's accounts. Arete fills every account
+with a `fill` in `sandbox_rules`:
+
+- `fixed`: the IDL's address, a sysvar, a native program or the program
+  itself;
+- `wallet`: the sandbox wallet;
+- `derived`: the spec's PDAs, the event authority, a mint's token program
+  (`base_token_program` from `base_mint`), and your associated token account
+  for a mint (`user_base_token_account`);
+- `read`: a field of another account you give (`pool.base_mint`).
+
+Fills chain: give the account an action starts from (a pool, a pair, a
+reserve) and Arete reads and derives the rest. Leave filled accounts out,
+and check `instructions[].filled` in the preview.
+
+An account with no `fill` has a `lookup`. Use it in this order:
+
+1. `docs`: what the IDL says, such as a PDA's seeds. Derive a PDA with
+   `sandbox_derive`.
+2. `tokenAccountFor`: it is your token account for one of those mints,
+   usually the associated token account (`sandbox_derive` with
+   `kind: "ata"`). Create it with the baseline `createIdempotent` in the same
+   action if it doesn't exist.
+3. `heldBy`: read an account of that type with `program_read_account` and
+   take the address from the named field.
+4. `accountType`: an account of that type. Take it from what you already
+   know (a quote, an API, an earlier transaction), from a stack you can read
+   through the sandbox, or search the program with your own RPC:
+   `getProgramAccounts` with a memcmp for `discriminator` at offset 0 and one
+   for each `findBy` field you know (for a PumpSwap `Pool`, `base_mint` at
+   offset 43).
+5. Otherwise follow `how`: the protocol's docs, SDK or API.
+
+`unlocks` lists what Arete fills once you give the account, so give the ones
+that unlock the most first.
+
+A preview missing accounts is refused with `sandbox-intent-invalid`. The
+message leads with what you must find, then what Arete fills once those are
+given. `accountGuidance` has one entry per missing account: its `lookup`, or
+`waitingOn` for an account Arete will fill. Give the first group and preview
+again.
+
+Accounts that depend on live state or on the direction of a trade (tick
+arrays, input and output vaults) stay yours. Take them from the venue's
+quote or API just before you act, or use a Jupiter route, whose
+`/swap-instructions` lists every account. Arete chooses Meteora DLMM bin
+arrays itself, so leave them out.
 
 ## Swaps
 
