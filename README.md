@@ -14,9 +14,14 @@ a4 doctor --json
 
 `a4 init` writes the agent instructions, skills and MCP config for every
 account, and `arete.toml` only for accounts with the `install` command group
-(otherwise it reports it as skipped). Without that group, agents read
-descriptors from `a4 explore` and act through a sandbox instead of installing
-SDKs.
+(otherwise it reports it as skipped). Every account, including a default one,
+keeps `a4 explore`, `a4 know` and the MCP catalog and knowledge tools; they
+need only a signed-in API key. Installing SDKs (`a4 install`, `a4 update`,
+`a4 remove`, `a4 sdk`), protocol projects (`a4 protocol init`, `a4 dev up`,
+`a4 protocol deploy`) and composing a stack into a project need the `install`
+group, and the CLI hides and refuses them when it cannot see the account's
+groups. Without that group, agents read descriptors from `a4 explore` and act
+through a sandbox instead of installing SDKs.
 
 Install only the skills when the rest of the project is already configured:
 

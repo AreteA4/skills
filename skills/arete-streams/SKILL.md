@@ -56,7 +56,8 @@ Before reporting token amounts, check each field's `amount` in `a4 explore stack
 
 ## Stream a Local Protocol (`a4 dev`)
 
-While `a4 dev up` runs a protocol project, `a4 stream --dev` streams that
+While `a4 dev up` runs a protocol project (which needs the `install` command
+group; see `arete-protocols`), `a4 stream --dev` streams that
 protocol's generated stack from the selected cloud dev environment. It finds the session
 (`.arete/dev/session.json` at or above the current directory, or
 `--project <dir>`), mints its own session tokens, and follows redeploys

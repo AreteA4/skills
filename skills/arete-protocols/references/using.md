@@ -224,7 +224,7 @@ a4 squads status <multisig>           # active once the proposal is approved and
 
 Arete builds no Squads transactions. Only when the user wants it in code (a
 script, or members whose key is a hot-wallet keypair), install the Squads v4
-program SDK and use its Arete setup helpers to create a multisig with the
+program SDK (with the `install` command group) and use its Arete setup helpers to create a multisig with the
 proposer, or to add the proposer to an existing one:
 
 ```bash

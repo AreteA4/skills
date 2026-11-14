@@ -49,6 +49,10 @@ protocol does and what its instructions mean. Installs (with the `install`
 command group) always come from the catalog descriptor, never from a
 knowledge result.
 
+Exploration and knowledge need only a signed-in API key (an agent gets one at
+sign-up with `a4 auth signup`). Every account can use them, including one
+without the `install` command group.
+
 Start from the user's intent, not from a remembered public stack:
 
 ```bash
@@ -140,8 +144,11 @@ IDL, AST, deployment, or release.
 
 Installing needs the `install` command group. With it, exploration output
 carries `installCommand`; without it, `installHint`, and `a4 install`,
-`a4 update`, `a4 remove` and `a4 sdk` are refused. Without the group, do not
-install: read schemas from the explored descriptor and act through a sandbox
+`a4 update`, `a4 remove`, `a4 sdk`, the MCP `describe_sdk` tool and project
+setup (`arete.toml`, `arete.lock`) are hidden and refused. The CLI treats an
+account whose groups it cannot see (no key, API unreachable, none reported)
+the same way. Without the group, do not install or write `arete.toml` by
+hand: read schemas from the explored descriptor and act through a sandbox
 (MCP `sandbox_preview`, then `sandbox_invoke`; see `arete-sandbox`). For
 live views, read them with `a4 get` or MCP `read_view`, through the sandbox
 when the account reads only through one.

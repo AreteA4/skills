@@ -202,7 +202,8 @@ The switch decides where a client runs, not the build: unset
 `ARETE_ENVIRONMENT` and the same client is production. `a4 dev up` regenerates
 the protocol client (and the protocol stack's SDK) from the local build, under
 `generated/`, and `a4 install --locked` restores the published ones that
-`arete.lock` pins. Before a production build or deploy:
+`arete.lock` pins. Like the rest of a protocol project, these commands need
+the `install` command group. Before a production build or deploy:
 
 ```sh
 a4 install --locked     # the published clients, exactly as arete.lock pins them
