@@ -12,6 +12,12 @@ a4 init -y
 a4 doctor --json
 ```
 
+`a4 init` writes the agent instructions, skills and MCP config for every
+account, and `arete.toml` only for accounts with the `install` command group
+(otherwise it reports it as skipped). Without that group, agents read
+descriptors from `a4 explore` and act through a sandbox instead of installing
+SDKs.
+
 Install only the skills when the rest of the project is already configured:
 
 ```bash
@@ -27,7 +33,7 @@ The CLI uses the skills lockfile to remove only the legacy Arete-owned
 | Skill | Use it for |
 | --- | --- |
 | `arete-sandbox` | Act from a sandbox wallet within its owner's rules: list and select granted sandboxes, the discover → preview → invoke loop, refusals and retries, reads through the sandbox, history and holdings |
-| `arete` | Discover capabilities, choose between a stack and a program SDK, inspect exact descriptors, and manage project dependencies |
+| `arete` | Discover capabilities, choose between a stack and a program SDK, inspect exact descriptors, and manage project dependencies (with the `install` command group) |
 | `arete-streams` | Query and subscribe to typed stack views from TypeScript, React, Rust, or Python, and stream a local protocol's stack with `a4 stream --dev` |
 | `arete-programs` | Read program accounts and prepare, inspect, or execute program operations, standalone or through a stack |
 | `arete-stack-authoring` | Compose stacks from published views and program SDKs, or design app-facing read models and compile Arete stack artifacts from Solana IDLs |
@@ -46,8 +52,8 @@ The skills deliberately avoid duplicating complete CLI and SDK manuals. Agents s
 4. The workflow and safety guidance in these skills.
 
 The skills target the catalog-first, descriptor-backed Arete CLI surface with
-`a4 doctor`, `a4 explore catalog`, exact descriptors, `a4 know`, and
-`a4 install`.
+`a4 doctor`, `a4 explore catalog`, exact descriptors, `a4 know`, and, for
+accounts with the `install` command group, `a4 install`.
 
 Routing and safety regressions are captured as observable behaviors in
 [`evals/cases.json`](evals/cases.json).

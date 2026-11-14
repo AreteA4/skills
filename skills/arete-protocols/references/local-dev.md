@@ -15,7 +15,9 @@ unavailable or disabled, report that result; do not substitute production.
 Use an Arete secret key from `a4 auth login` or `ARETE_API_KEY`. For a protocol
 project, use CLI 0.42.1 or newer and Node.js 22.13+, then install the project's
 npm dependencies. The cloud workflow does not require installing a validator
-or local Arete runtime.
+or local Arete runtime. The account needs the `install` command group as well
+as `protocols`: `a4 protocol init`, `a4 dev up`, `a4 dev sdk` and
+`a4 protocol deploy` run the installer, and are refused without it.
 
 Starting a cloud environment creates or wakes an account resource and consumes
 its allowance. Do it when the user asks to develop or test there. Development
