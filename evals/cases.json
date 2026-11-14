@@ -627,6 +627,55 @@
       "must_not": [
         "fall back to an unscoped read with the account's own key"
       ]
+    },
+    {
+      "id": "no-install-group-program-call",
+      "prompt": "Deposit 1 USDC into my vault on this lending program from my sandbox.",
+      "fixture": "account without the install command group (only account and sandboxes); one sandbox granted whose rules enable the lending program's deposit instruction; a4 explore output carries installHint, not installCommand",
+      "expected_skills": [
+        "arete-programs",
+        "arete-sandbox"
+      ],
+      "must": [
+        "read the deposit instruction's arguments and accounts from the explored descriptor and sandbox_rules",
+        "preview the invoke with sandbox_preview before sandbox_invoke, with the amount as a decimal string in base units"
+      ],
+      "must_not": [
+        "run a4 install, a4 sdk or any other install command, or tell the user to install a program SDK",
+        "build, sign or submit a transaction outside the sandbox tools"
+      ]
+    },
+    {
+      "id": "no-install-group-view-read",
+      "prompt": "What does the current round on this stack look like right now?",
+      "fixture": "account that reads only through sandboxes and has no install command group; one sandbox granted whose rules enable every program the stack decodes",
+      "expected_skills": [
+        "arete-streams"
+      ],
+      "must": [
+        "read the view once through the sandbox with a4 get --sandbox or MCP read_view",
+        "take entity and view names from the explored descriptor"
+      ],
+      "must_not": [
+        "run a4 install stack or write a script against a generated SDK",
+        "fall back to an unscoped read with the account's own key"
+      ]
+    },
+    {
+      "id": "no-install-group-init",
+      "prompt": "Set this project up for Arete and add the stack I'll need for token balances.",
+      "fixture": "empty directory; a default account with only the account and sandboxes command groups",
+      "expected_skills": [
+        "arete"
+      ],
+      "must": [
+        "run a4 init and report that it wrote the agent instructions, skills and MCP config but skipped arete.toml because the account lacks the install command group",
+        "explore the catalog and report the descriptor's installHint, offering to read the stack's views with a4 get or MCP read_view through a sandbox instead"
+      ],
+      "must_not": [
+        "run a4 install or write arete.toml by hand to work around the skipped manifest",
+        "claim the dependency was added"
+      ]
     }
   ]
 }

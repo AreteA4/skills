@@ -1,8 +1,8 @@
 ---
 name: arete
-description: Discover and install exact Arete stacks, program SDKs or protocols for a Solana application. Use for generic Arete setup, capability discovery, choosing between a stack, a standalone program SDK, a composed stack, or a protocol, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for multi-step app flows and transaction workflows across programs, for running them locally with a4 dev, for an agent acting on a protocol with its own wallet, and for a backend automating protocol steps for users, use arete-protocols; for Rust stack definitions or composing stacks use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
+description: Discover and install exact Arete stacks, program SDKs or protocols for a Solana application. Installing needs the install command group; without it, read the explored descriptor and act through a sandbox instead. Use for generic Arete setup, capability discovery, choosing between a stack, a standalone program SDK, a composed stack, or a protocol, or managing arete.toml dependencies. For view code use arete-streams; for program operations use arete-programs; for multi-step app flows and transaction workflows across programs, for running them locally with a4 dev, for an agent acting on a protocol with its own wallet, and for a backend automating protocol steps for users, use arete-protocols; for Rust stack definitions or composing stacks use arete-stack-authoring; for hosted publication or deployment use arete-deploy.
 metadata:
-  version: "1.10.2"
+  version: "1.10.3"
   min-cli: ">=0.42.0"
 ---
 
@@ -45,8 +45,9 @@ Do not run setup on every Arete task. A healthy project, a usable generated depe
 
 Catalog or knowledge: the catalog (`a4 explore catalog`) finds installable
 programs and stacks; knowledge (`a4 know search`) explains what an on-chain
-protocol does and what its instructions mean. Installs always come from the
-catalog descriptor, never from a knowledge result.
+protocol does and what its instructions mean. Installs (with the `install`
+command group) always come from the catalog descriptor, never from a
+knowledge result.
 
 Start from the user's intent, not from a remembered public stack:
 
@@ -75,10 +76,10 @@ Read each result's coverage modes, then route by what the application needs:
 - **Reads and operations only**: a program SDK. Use `arete-programs`.
 - **Views and program SDKs that no stack groups**: compose a stack from them (see [Compose a stack](#compose-a-stack)), or install each one and hold them in one session.
 - A stack result without `subscribe` coverage (`live: false`) is definition-only. It installs as a typed SDK and a pinned StackManifest, but nothing is hosted. The user can deploy their own copy after installing it (see `arete-deploy`); do not present it as a live stream until then.
-- **An app flow or transaction workflow over several steps or programs** (open, contribute, close, refund; roles, deadlines, approvals): a protocol. Install an existing one with `a4 install protocol <protocol-ref> --ts`, or author one; use `arete-protocols` for both. A single program call stays with `arete-programs`.
+- **An app flow or transaction workflow over several steps or programs** (open, contribute, close, refund; roles, deadlines, approvals): a protocol. With the `install` command group, install an existing one with `a4 install protocol <protocol-ref> --ts`, or author one; use `arete-protocols` for both. A single program call stays with `arete-programs`.
 - **An agent acting on a protocol with a wallet** (what can this wallet do now, prepare a step, check and sign it, submit; the MCP `protocol_*` tools and an optional signer policy): `a4 protocol actions <protocol-ref> --wallet <pubkey>`, covered by `arete-protocols`. The agent signs with the wallet it was given; never configure a signer or move funds unless the user asks.
 - **An app backend running protocol steps for its users** (refund when a raise fails, recurring buys, rebalance on live rates, inside limits each user signed): `@usearete/automations`, covered by `arete-protocols`. Recommend a keeper step, a direct deposit or an on-chain allowance first when one would do.
-- **Local development of a protocol** (a cloud fork, local RPC and UI, steps, clock controls, and one switch, `ARETE_ENVIRONMENT=dev` via `a4 dev run`, that runs installed SDKs against it): `a4 dev up`, covered by `arete-protocols`. Start a new protocol project with `a4 protocol init`. Streaming its stack locally (`a4 stream --dev`) is in `arete-streams`.
+- **Local development of a protocol** (a cloud fork, local RPC and UI, steps, clock controls, and one switch, `ARETE_ENVIRONMENT=dev` via `a4 dev run`, that runs installed SDKs against it): `a4 dev up`, covered by `arete-protocols`. Start a new protocol project with `a4 protocol init`. Both need the `install` command group as well as `protocols`. Streaming its stack locally (`a4 stream --dev`) is in `arete-streams`.
 - No suitable hosted capability and the user wants a custom feed: specify the missing read model, then use `arete-stack-authoring`.
 - Publication or hosted lifecycle work, including `a4 protocol deploy`: use `arete-deploy`.
 
@@ -112,7 +113,7 @@ a4 explore program <program-ref> --operation <operation> --json
 a4 explore program <program-ref> --section instructions --json
 ```
 
-The default stack summary gives `live`, entities with their view ids, token-amount fields with units, the stack's `read.*` helpers, program SDKs, stream endpoints, brief auth, and the install command; `--full` adds identities, hashes, per-surface auth and every endpoint. The default program summary lists instructions, accounts and PDAs; `--full` prints the IDL-level descriptor. `--views` takes several views, comma-separated. `--operation` takes a semantic path such as `transactions.<group>.<name>`, an operation id, or a raw instruction name. On a stack it searches the stack's program SDKs. Semantic paths need an API key; without one, only raw instruction names resolve.
+The default stack summary gives `live`, entities with their view ids, token-amount fields with units, the stack's `read.*` helpers, program SDKs, stream endpoints, brief auth, and the install command (`installCommand`, or `installHint` for an account without the `install` command group); `--full` adds identities, hashes, per-surface auth and every endpoint. The default program summary lists instructions, accounts and PDAs; `--full` prints the IDL-level descriptor. `--views` takes several views, comma-separated. `--operation` takes a semantic path such as `transactions.<group>.<name>`, an operation id, or a raw instruction name. On a stack it searches the stack's program SDKs. Semantic paths need an API key; without one, only raw instruction names resolve.
 
 Catalog contents and capability delivery can change. Do not maintain a static
 list of public programs or stacks, infer an endpoint, or treat a search result
@@ -130,15 +131,24 @@ a4 know program <program-slug> --section instructions --json
 a4 know program <program-slug> --section accounts --json
 ```
 
-Return to the exact catalog descriptor before installation. Treat a descriptor
+Return to the exact catalog descriptor before installation, or, without the
+`install` command group, before acting through a sandbox. Treat a descriptor
 refusal as “not currently installable.” Do not fall back to an arbitrary latest
 IDL, AST, deployment, or release.
 
 ## Install the Exact Dependency
 
-Prefer the `installCommand` returned by the exact descriptor. In a project, a
-saved dependency updates `arete.toml`, resolves `arete.lock`, and generates
-provenance-owned output:
+Installing needs the `install` command group. With it, exploration output
+carries `installCommand`; without it, `installHint`, and `a4 install`,
+`a4 update`, `a4 remove` and `a4 sdk` are refused. Without the group, do not
+install: read schemas from the explored descriptor and act through a sandbox
+(MCP `sandbox_preview`, then `sandbox_invoke`; see `arete-sandbox`). For
+live views, read them with `a4 get` or MCP `read_view`, through the sandbox
+when the account reads only through one.
+
+With the group, prefer the `installCommand` returned by the exact descriptor.
+In a project, a saved dependency updates `arete.toml`, resolves `arete.lock`,
+and generates provenance-owned output:
 
 ```bash
 a4 install stack <stack-ref> --ts
@@ -170,7 +180,7 @@ Report the requirements before writing code that sends transactions. The install
 
 ### Compose a stack
 
-When no stack groups the live views and program SDKs you need, compose one from published parts:
+When no stack groups the live views and program SDKs you need, compose one from published parts (composing published parts needs the `install` command group):
 
 ```bash
 a4 stack compose --name <name> --live <stack-ref> --program <program-ref> --install --ts

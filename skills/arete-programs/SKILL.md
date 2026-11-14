@@ -2,7 +2,7 @@
 name: arete-programs
 description: Use generated Arete program SDKs, standalone or included in a stack, to read accounts, derive PDAs, build instructions, prepare semantic operations, inspect transactions, or execute them through a wallet. Use for Solana protocol integrations and transaction workflows. Do not use for stack views or subscriptions; use arete-streams. Do not publish a program or deploy a stack; use arete-deploy.
 metadata:
-  version: "1.5.2"
+  version: "1.5.3"
   min-cli: ">=0.36.0"
 ---
 
@@ -61,12 +61,15 @@ A stack groups live views and program SDKs. A default stack includes the program
 - Only reads and transactions: install the program on its own.
 - No stack groups the views and program SDKs you need: compose one (see `arete`).
 - Never merge stack and program objects by hand. Pass stacks and programs to one session, or use the stack's own `programs`.
+- No `install` command group: there is no SDK to install; see the next section.
 
 A project may install a stack and the same program standalone. When both come from the same program package release, they are one program at runtime.
 
 ## Install and Inspect Generated Code
 
-Prefer the descriptor's `installCommand`. A standalone program currently may support fewer language targets than the same program bundled in a stack. Trust `sdkTargets` rather than assuming parity.
+Installing an SDK needs the `install` command group. Without it, exploration output carries `installHint` instead of `installCommand`: build the instruction from the descriptor's argument and account shapes (`a4 explore program <program-ref> --operation <operation> --json`) and run it through the sandbox (MCP `sandbox_preview`, then `sandbox_invoke`; see `arete-sandbox`) instead of an SDK.
+
+With the `install` group, prefer the descriptor's `installCommand`. A standalone program currently may support fewer language targets than the same program bundled in a stack. Trust `sdkTargets` rather than assuming parity.
 
 ```bash
 a4 install program <program-ref> --ts

@@ -2,7 +2,7 @@
 name: arete-protocols
 description: Author Arete Protocols with defineProtocol (machines, guards, instruction templates, reviewed handlers, reactions, fees), scaffold them with a4 protocol init, iterate with a4 dev on an Arete cloud fork (generated client, a4 stream --dev), deploy privately with a4 protocol deploy and install the result with a4 install protocol, use installed protocols from TypeScript, Rust or Python apps (instances, allowedSteps, prepare, sign, submit, metadata, events, webhooks, Squads multisig setup), and act on a protocol as an agent with a wallet (a4 protocol actions, the MCP protocol tools, an opt-in signer policy), and automate user-signed steps from an app backend with @usearete/automations (triggers, schedules, consent, spending limits, signers, deploying to Cloudflare, Vercel or a Node host). Use when composing existing Solana programs into a hosted multi-step flow or transaction workflow, or when an app calls a protocol. Do not use for a single program call (arete-programs), stack views (arete-streams) or stack authoring (arete-stack-authoring).
 metadata:
-  version: "1.12.1"
+  version: "1.12.2"
   min-cli: ">=0.51.0"
 ---
 
@@ -14,6 +14,13 @@ that explain rejections, steps that build exact transactions users sign
 themselves, and reactions (timers, keeper steps, Squads proposals, emitted
 events). There is no custom on-chain code. Users sign the program transactions with
 their own wallets; platform fees can apply.
+
+Protocol projects need the `install` command group as well as `protocols`:
+`a4 protocol init`, `a4 create -t protocol`, `a4 dev up`, `a4 dev sdk` and
+`a4 protocol deploy` run the installer, and installing a protocol client
+(`a4 install protocol`) needs it too. Without the group these commands are
+hidden and refused; say which group the account lacks rather than working
+around it.
 
 Two jobs, two references:
 

@@ -1,6 +1,6 @@
 # Python View Clients
 
-Generate a Python stack package or module only when the descriptor lists Python support:
+Generate a Python stack package or module only when the descriptor lists Python support and the account has the `install` command group (without it, read views with `a4 get` or MCP `read_view`, through the sandbox for an account that reads only through sandboxes):
 
 ```bash
 a4 install stack <stack-ref> --python

@@ -2,7 +2,7 @@
 name: arete-streams
 description: Query or subscribe to deployed Arete stack views from TypeScript, React, Rust, Python, the a4 CLI, or the Arete MCP server, and stream a local protocol's stack from a4 dev with a4 stream --dev (including its TUI). Use for dashboards, bots, backends, current-state reads, live entity updates, view filtering, or stream debugging. Do not use for program accounts or transaction construction; use arete-programs for those.
 metadata:
-  version: "1.10.0"
+  version: "1.10.1"
   min-cli: ">=0.51.0"
 ---
 
@@ -30,13 +30,13 @@ a4 explore stack <stack-ref> <Entity> --json
 a4 explore stack <stack-ref> --full --json
 ```
 
-The first prints a compact summary (views, amount units, `read.*` helpers, install command); `--full` prints the descriptor. Use the descriptor's exact `installRef`, identities, authentication policies, selected views, SDK targets, and `installCommand`. A failed descriptor is not permission to fall back to an unpinned deployment.
+The first prints a compact summary (views, amount units, `read.*` helpers, install command); `--full` prints the descriptor. Use the descriptor's exact `installRef`, identities, authentication policies, selected views, SDK targets, and `installCommand` (`installHint` for an account without the `install` command group). A failed descriptor is not permission to fall back to an unpinned deployment.
 
 ## Choose the Consumer Surface
 
 - To check a current value once, use `a4 get` (or MCP `read_view`) instead of writing a script. It reads the view's current entities, prints one JSON document, and exits.
 - Use `a4 stream` or the configured Arete MCP server to follow a view during an agent run. MCP cache reads wait for the subscription's snapshot and report `ready`.
-- Use the generated SDK for application code, durable automation, tests, or anything committed to the project.
+- Use the generated SDK for application code, durable automation, tests, or anything committed to the project. SDKs need the `install` command group; without it, use `a4 get` or MCP `read_view`.
 - Use HTTP-only connection mode only for point-in-time reads; view subscriptions must fail fast without WebSocket transport.
 
 Useful CLI probes include:
@@ -97,7 +97,9 @@ a4 stream --dev --tui                            # browse protocols, views, rows
 
 ## Install and Inspect Generated Code
 
-Prefer the descriptor's `installCommand`. Otherwise add the exact stack dependency for the project language:
+SDKs need the `install` command group. Without it, exploration output carries `installHint` instead of `installCommand`: do not install, and read views with `a4 get` or MCP `read_view` (through the sandbox, with `--sandbox` or the `sandbox` argument, for an account that reads only through sandboxes; see `arete-sandbox`).
+
+With the group, prefer the descriptor's `installCommand`. Otherwise add the exact stack dependency for the project language:
 
 ```bash
 a4 install stack <stack-ref> --ts

@@ -10,6 +10,8 @@ Generated TypeScript bindings import `@usearete/sdk` and Zod schemas. Install th
 npm install @usearete/sdk zod
 ```
 
+Generated bindings need the `install` command group; without it, read views with `a4 get` or MCP `read_view` (through the sandbox for an account that reads only through sandboxes) instead of writing SDK code.
+
 In a directory with no `package.json`, `a4 install stack <stack-ref> --ts --setup` creates an ES module `package.json` and `tsconfig.json` and installs these plus `typescript`, `tsx`, and `@types/node`.
 
 Prefer a session when the application uses multiple stacks, standalone programs, shared chain reads, or shared execution:
