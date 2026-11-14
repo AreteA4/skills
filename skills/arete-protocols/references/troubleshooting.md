@@ -4,9 +4,10 @@ Every rejection keeps the server's `code`. Upload rejections also carry an
 `errors` list, and each entry has a `path` (a JSON pointer into the built
 spec), a `code` and a `message`. Read it with
 `ARETE_API_KEY=<secret key> npx arete-protocol check`,
-`a4 protocol deploy --dry-run` or the MCP tool `protocol_check`, before
-uploading. The generated table, including every template and prepare code,
-is at <https://docs.arete.run/reference/protocol-expressions/#rejections>.
+`a4 protocol deploy --dry-run` (with the `install` command group) or the
+MCP tool `protocol_check`, before uploading. The generated table, including
+every template and prepare code, is at
+<https://docs.arete.run/reference/protocol-expressions/#rejections>.
 
 ## Check and build (local)
 

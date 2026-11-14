@@ -17,6 +17,9 @@ ARETE_API_KEY=<secret key> npx arete-protocol check   # --remote requires it, --
 a4 protocol deploy --dry-run                          # uses the a4 login
 ```
 
+`a4 protocol deploy` needs the `install` command group as well as
+`protocols`.
+
 The MCP tool `protocol_check` runs the same check. The server check needs
 `@usearete/protocol` 0.5.0 or later and a4 0.47.0 or later. Older versions,
 or a server without the check route, run only the local checks: `check` warns

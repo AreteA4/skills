@@ -2,6 +2,8 @@
 
 Read this reference when changing `arete.toml`, resolving `arete.lock`, or maintaining generated SDK outputs.
 
+These commands need the `install` command group; `a4 init` writes `arete.toml` only with it (otherwise it reports the manifest as skipped). Without the group, do not install: read the explored descriptor and act through a sandbox, as the skill's install section describes.
+
 ## Model
 
 - `arete.toml` is the human-authored manifest.

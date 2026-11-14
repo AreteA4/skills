@@ -47,6 +47,6 @@ Glue is still the shortest way to do the common cases:
 Use `ix(<builtin>, ...)` for anything else, such as a token transfer or
 closing an account in the step's own transaction.
 
-Installing the registry package instead (`a4 install program spl-token`)
-still works, and is what you want when an app also calls the program
+Installing the registry package instead (`a4 install program spl-token`,
+with the `install` command group) still works, and is what you want when an app also calls the program
 directly through its program SDK.

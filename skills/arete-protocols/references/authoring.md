@@ -8,7 +8,9 @@ jar with the System Program installed as `@programs/system`, a manifest,
 lock, `package.json` and `tsconfig.json` ready for `npm install`,
 `npx arete-protocol check` and `a4 dev up` (see
 [local-dev.md](local-dev.md#start-a-project)). Replace its steps rather than
-writing the project files by hand.
+writing the project files by hand. A protocol project needs the `install`
+command group as well as `protocols`: `a4 protocol init`, `a4 install`,
+`a4 dev up` and `a4 protocol deploy` are refused without it.
 
 ## Shape
 

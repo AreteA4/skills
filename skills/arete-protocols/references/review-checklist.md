@@ -10,6 +10,9 @@ Walk this list before asking for a review.
 Template-only protocols skip review and deploy privately at trust tier
 `unreviewed`; still walk the Spec and Unreviewed sections before deploying.
 
+`a4 protocol deploy`, `a4 install` and `a4 dev up` below need the `install`
+command group as well as `protocols`.
+
 ## Identity
 
 - [ ] Two clean builds produced identical `protocol-release.json` bytes.

@@ -152,6 +152,9 @@ Report a refusal as it is; do not widen the policy to get past it.
 
 ## Trying it locally
 
+`a4 dev up` runs in a protocol project, which needs the `install` command
+group (see the skill).
+
 ```bash
 a4 dev up                                   # in the protocol project
 a4 protocol actions --dev --wallet creator

@@ -1,12 +1,12 @@
 # Using an installed protocol
 
-`a4 install protocol <ref> --ts` generates the client under
-`generated/typescript/protocols/<alias>/` (`arete.protocols.<name>` in a
-session) with the protocol's stacks and programs hoisted alongside it.
-`--rust` generates a crate over `arete-a4-sdk` and `--python` a package over
-`arete-sdk`; see [Rust](#rust) and [Python](#python) below. Installing a
-public protocol records the shared deployment only; no credentials are
-written.
+With the `install` command group, `a4 install protocol <ref> --ts` generates
+the client under `generated/typescript/protocols/<alias>/`
+(`arete.protocols.<name>` in a session) with the protocol's stacks and
+programs hoisted alongside it. `--rust` generates a crate over `arete-a4-sdk`
+and `--python` a package over `arete-sdk`; see [Rust](#rust) and
+[Python](#python) below. Installing a public protocol records the shared
+deployment only; no credentials are written.
 
 Your own deployed protocol installs the same way: activation publishes an
 owner-private package, so `a4 install protocol <slug> --ts` resolves it for
@@ -224,7 +224,7 @@ a4 squads status <multisig>           # active once the proposal is approved and
 
 Arete builds no Squads transactions. Only when the user wants it in code (a
 script, or members whose key is a hot-wallet keypair), install the Squads v4
-program SDK and use its Arete setup helpers to create a multisig with the
+program SDK (with the `install` command group) and use its Arete setup helpers to create a multisig with the
 proposer, or to add the proposer to an existing one:
 
 ```bash

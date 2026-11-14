@@ -41,6 +41,7 @@ a4 up <alias> --dry-run
 a4 up <alias>
 ```
 
+- Installing the stack, and the reinstall after a production deployment, need the `install` command group as well as `stacks`. Without it, `a4 up` deploys and skips the reinstall.
 - The deployed closure is the one `arete.lock` pins, read from the registry cache that `a4 install` fills. Each cached artifact must still hash to its locked identity. A missing entry is fetched again at the locked release. `--dry-run --local-only` never fetches and instead asks for `a4 install`.
 - The alias names the deployment unless `[authoring.stacks]` has an entry with the same name, which wins.
 - A plain `a4 up` deploys only authored stacks. Name the installed stack explicitly.

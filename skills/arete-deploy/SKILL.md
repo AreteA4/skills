@@ -2,7 +2,7 @@
 name: arete-deploy
 description: Publish Solana ProgramSpecs and plan, deploy, inspect, stop, archive, promote, or delete hosted Arete resources. Use for a4 program lifecycle, a4 up, deployment branches/previews, hosted stack operations, and taking an Arete Protocol to a private hosted deployment with a4 protocol deploy (review, activation outcomes, the owner-private registry package). This skill performs external mutations only when the user's request authorizes them; use arete-stack-authoring for local DSL and artifact work and arete-protocols for protocol authoring and a4 dev.
 metadata:
-  version: "1.4.0"
+  version: "1.4.1"
   min-cli: ">=0.49.0"
 ---
 
@@ -74,7 +74,7 @@ Run `a4 up --help` for the installed surface and read [references/deployment-lif
 
 ## Deploy an Installed Stack
 
-A stack installed with `a4 install stack` deploys by its dependency alias. This is how a definition-only catalog stack (one with no hosted stream) gets a stream of its own:
+A stack installed with `a4 install stack` deploys by its dependency alias. This is how a definition-only catalog stack (one with no hosted stream) gets a stream of its own. Installing a deployed stack's SDK needs the `install` command group as well as `stacks`; without it, `a4 up <alias>` still deploys but does not point the installed SDK at the deployment:
 
 ```bash
 a4 up <alias> --dry-run
@@ -89,7 +89,8 @@ After a healthy production deployment, `a4 up <alias>` also edits the project: i
 
 `a4 protocol deploy` takes a protocol project (authored with
 `arete-protocols`) to a private hosted deployment. It needs a secret key;
-publishable keys are refused. Preview first:
+publishable keys are refused. It runs the installer, so the account needs the
+`install` command group as well as `protocols`. Preview first:
 
 ```bash
 a4 protocol deploy --dry-run                 # builds; files, expected release hash, slug, create vs reuse, programs to push
@@ -121,8 +122,9 @@ On activation, Arete publishes an owner-private registry package of the
 protocol, reported as `registryPackage`:
 
 - `published` or `existing`: `a4 install protocol <slug> --ts` resolves it
-  for this account (others can't), and deploy reinstalls the project's own
-  client from it, so the client calls the new deployment.
+  for this account (others can't; it needs the `install` command group),
+  and deploy reinstalls the project's own client from it, so the client
+  calls the new deployment.
 - `skipped`, with `code` and `message`: the deployment is still active, but
   no package was published. For `package-version-immutable`, the spec
   `version` already pins other content: bump it and deploy again (with the

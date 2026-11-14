@@ -2,7 +2,7 @@
 name: arete-stack-authoring
 description: Design and compile custom Arete stack artifacts from Solana program IDLs using the Rust DSL, or compose stacks from published live views and program SDKs. Use for app-facing read models, entity keys, cross-account join proof, mappings, aggregations, views, resolvers, stack composition, and ProgramSpec/LiveSpec/StackManifest generation. Do not deploy or mutate hosted resources; use arete-deploy for that.
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
   min-cli: ">=0.25.1"
 ---
 
@@ -36,7 +36,7 @@ programs = [{ package = "spl-token", version = "^1" }]
 - The programs the views index come with them, as the program SDKs their stack includes. A `--program` for the same program replaces that SDK; any other `--program` adds an independent program.
 - Without `--selected-view`, each alias selects every view its stack serves. With it, the `alias=view_id` values are the exact ordered allowlist.
 - A registry part without a version is saved at `^<resolved version>`.
-- `--install` also declares `[dependencies.stacks.<name>]` with `source = { workspace = "<name>" }` and installs it. Pass the SDK target with it (`--install --ts`, `--rust`, or `--python`); it is recorded as the dependency's `targets`, as `a4 install <package> --ts` records it. Without one, the dependency generates every target in `[sdk].targets` (TypeScript and Rust by default). `a4 install` pins every part in `arete.lock` and generates the composed stack's SDK, with each program SDK at `arete.programs.<program>` (take the key from the generated types).
+- `a4 stack compose` needs the `install` command group unless it composes local files to a file (`-o`): registry parts resolve through the registry, and composing into the project writes `arete.toml`. `--install` also declares `[dependencies.stacks.<name>]` with `source = { workspace = "<name>" }` and installs it. Pass the SDK target with it (`--install --ts`, `--rust`, or `--python`); it is recorded as the dependency's `targets`, as `a4 install <package> --ts` records it. Without one, the dependency generates every target in `[sdk].targets` (TypeScript and Rust by default). `a4 install` pins every part in `arete.lock` and generates the composed stack's SDK, with each program SDK at `arete.programs.<program>` (take the key from the generated types).
 - A composed stack does not carry a source stack's stack extension, such as its reads. The install output notes each one it leaves out.
 
 A live alias taken from a stack with hosted delivery reads that stack's deployment, so the composed SDK connects without a new deployment. An alias from a definition-only stack or a LiveSpec file has no endpoints until `a4 up <name>` deploys the composed stack to the user's account and records the endpoints. `a4 up <name>` deploys exactly what `arete.lock` pins, and a production deployment lists the program SDK each program carries. Deploying is an external mutation: hand it to `arete-deploy` and require the user's authorization.
@@ -155,7 +155,7 @@ a4 config validate
 a4 sdk create --manifest .arete/<Stack>.stack-manifest.json --ts
 ```
 
-Generate a local client as a contract test: the requested entities, views, programs, and field types should appear exactly as intended.
+Generate a local client as a contract test: the requested entities, views, programs, and field types should appear exactly as intended. `a4 sdk` needs the `install` command group; without it, run `a4 config validate` and inspect the manifest's selected views and programs instead.
 
 Read [references/artifacts.md](references/artifacts.md) for artifact roles, composition, and local validation.
 

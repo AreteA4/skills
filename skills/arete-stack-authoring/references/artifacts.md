@@ -46,6 +46,8 @@ With `--output`, the command writes a StackManifest. A StackManifest lists Progr
 
 ## Validate Locally
 
+`a4 sdk` and `a4 stack compose` (except local files composed to `-o`) need the `install` command group; without it, `a4 config validate` still runs.
+
 ```bash
 a4 config validate
 a4 sdk create --manifest ./artifacts/MyApp.stack-manifest.json --ts

@@ -28,6 +28,10 @@ have already committed the money: a direct deposit is simpler.
 
 ## Set up
 
+Automations live in a protocol project, which needs the `install` command
+group as well as `protocols` (`a4 protocol init`, `a4 dev up`,
+`a4 install --locked` and `a4 protocol deploy` are refused without it).
+
 Handlers live in a definition, apart from keys, store and URLs, so the same
 code runs under `a4 dev` and in production. `a4 protocol init` already
 scaffolds one: `automations/index.ts` (a daily recurring tip and a handler
