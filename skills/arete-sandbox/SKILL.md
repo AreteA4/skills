@@ -1,8 +1,8 @@
 ---
 name: arete-sandbox
-description: Act from an Arete sandbox, a funded Solana wallet the agent uses without holding its key, inside rules its owner signed. Use when the sandbox_* MCP tools are listed, or when the user asks the agent to choose a sandbox, trade, swap, withdraw, check a sandbox's balance, holdings, rules or history, read program accounts or live views through a sandbox, or explain a sandbox refusal. Covers listing and selecting sandboxes, the discover → preview → invoke loop, refusals and retries, sandbox-scoped reads, and a4 sandbox. Do not use for protocol steps, dev environments or app wallets; use arete-protocols or arete-programs for those.
+description: Act from an Arete sandbox, a funded Solana wallet the agent uses without holding its key, inside rules its owner signed. Use when the sandbox_* MCP tools are listed, or when the user asks the agent to choose a sandbox, trade, swap, lend or deposit (Kamino Lend and similar), withdraw, check a sandbox's balance, holdings, rules or history, read program accounts or live views through a sandbox, or explain a sandbox refusal. Covers listing and selecting sandboxes, the discover → preview → invoke loop, program functions that plan a whole action, refusals and retries, sandbox-scoped reads, and a4 sandbox. Do not use for protocol steps, dev environments or app wallets; use arete-protocols or arete-programs for those.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   min-cli: ">=0.55.0"
 ---
 
@@ -64,8 +64,10 @@ share the saved choice with `a4 mcp` started in the same folder.
 1. `sandbox_status`: which sandbox this is, the wallet address, balances and
    the actions you hold (`invoke`, `withdraw`). Start here.
 2. `sandbox_rules`: the enabled programs, each instruction's arguments and
-   accounts, spend limits, the allowlist and the baseline. Use only what it
-   lists, named exactly as it names them.
+   accounts, the program's `functions`, spend limits, the allowlist and the
+   baseline. Use only what it lists, named exactly as it names them. When a
+   program lists a function for what you want to do, use it (see Functions
+   below) instead of assembling the instructions yourself.
 3. `sandbox_derive` when you need an address: `kind: "pda"` with `programId`
    and `seeds` (computed locally), or `kind: "ata"` with `mint`.
 4. `sandbox_preview` with the action and arguments. It runs every check and
@@ -82,12 +84,58 @@ before you run anything they did not explicitly ask for.
 | `action`   | `args`                                                                                                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `invoke`   | `{ instructions: [{ program, instruction, args?, accounts?, remainingAccounts? }], computeUnitLimit?, computeUnitPriceMicroLamports?, transactionFormat? }` |
+| `call`     | `{ program, function, input, computeUnitLimit?, computeUnitPriceMicroLamports?, transactionFormat? }`: a program function that plans the whole action     |
 | `withdraw` | `{ lamports, transactionFormat? }`: SOL to the owner's wallet, the only destination                                                                         |
 
 - `invoke` takes 1 to 8 instructions. The sandbox wallet is the only signer.
+- `call` needs the `invoke` grant. Older a4 releases do not offer it; then
+  use `invoke`, following the order in the refusals.
 - Accounts with a `fill` in `sandbox_rules` can be left out (see Finding
   accounts below).
 - Pass u64 and u128 amounts as decimal strings, in the smallest unit.
+
+## Functions
+
+Some programs need more than one instruction for one action, in an exact
+order, with setup that depends on live state. `sandbox_rules` lists a
+program's `functions` (`name` and `summary`) when Arete can plan them: it
+reads the chain, emits every instruction in the right order, fills the
+accounts and fills the sandbox wallet in as the signer. Every instruction a
+function plans is still checked against the rules, like an `invoke`.
+
+Kamino Lend (`KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD`) is the main case.
+Deposit with:
+
+```json
+{
+  "action": "call",
+  "args": {
+    "program": "KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD",
+    "function": "transactions.obligation.deposit",
+    "input": { "reserve": "<reserve address>", "amount": "0.1" }
+  }
+}
+```
+
+- `transactions.obligation.deposit`, `.withdraw`, `.borrow`, `.repay` take
+  `reserve`, `amount` and, optionally, `obligation` (an address; default
+  the owner's first obligation in the reserve's market).
+- `amount` is in whole units of the reserve's token (`"0.1"` SOL), unlike
+  `invoke`. `withdraw` and `repay` also take `"max"`.
+- A deposit creates the obligation, the user metadata and the reserve's
+  farm state when they are missing, refreshes the reserves and the
+  obligation, and wraps SOL from the wallet for a SOL reserve. It works for
+  reserves with and without farms.
+- Preview with `action: "call"` first, as with any action. The preview's
+  `plan` names the function and the slot it read.
+
+If you must use `invoke` for Kamino Lend, prefer the `...V2` instructions
+(`depositReserveLiquidityAndObligationCollateralV2`,
+`withdrawObligationCollateralAndRedeemReserveCollateralV2`): they refresh the
+farm themselves. The v1 instructions only run when the instructions right
+before and after them are the exact refreshes Kamino checks, and a preview
+refuses a wrong order with `sandbox-kamino-refresh-sequence`, naming the
+missing instruction and where it goes.
 
 ## Finding accounts
 
@@ -195,6 +243,11 @@ names the `rule` and what triggered it (`program`, `instruction`, `mint`,
 - `sandbox-program-not-allowlisted`, `sandbox-instruction-not-allowlisted`,
   `sandbox-action-not-granted`: only the owner can change these. Do not try to
   route around them.
+- `sandbox-kamino-refresh-sequence`: a Kamino Lend v1 instruction is missing
+  a refresh right before or after it. The message names the instruction and
+  its position. Use the program's function (`call`) or the v2 instruction.
+- `sandbox-function-not-allowlisted`: the owner's rules name other functions
+  for that program; use those, or `invoke`.
 - `sandbox-guard-trial-failed`: the transaction fails when run; check
   accounts and amounts against `sandbox_rules` and `sandbox_holdings`.
 - `sandbox-paused`: stop and tell the user; only the owner can resume.

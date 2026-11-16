@@ -568,6 +568,22 @@
       ]
     },
     {
+      "id": "sandbox-kamino-deposit-call",
+      "prompt": "Deposit 0.1 SOL into Kamino's main market SOL reserve from my sandbox.",
+      "fixture": "sandbox whose rules enable Kamino Lend and list its transactions.obligation.deposit function",
+      "expected_skills": [
+        "arete-sandbox"
+      ],
+      "must": [
+        "use the call action with transactions.obligation.deposit, the reserve and the amount in whole units",
+        "preview the call with sandbox_preview before sandbox_invoke"
+      ],
+      "must_not": [
+        "hand-assemble the refresh, obligation and farm instructions in an invoke when the function is listed",
+        "wrap SOL in a separate action before the deposit"
+      ]
+    },
+    {
       "id": "sandbox-invoke-timeout",
       "prompt": "The sandbox_invoke call timed out. Try the trade again.",
       "fixture": "sandbox session with a timed-out sandbox_invoke and its idempotencyKey",
