@@ -14,6 +14,20 @@
 //
 // The CLI is A4_BIN when set, otherwise `npx -y @usearete/a4@latest` (the
 // wrapper bootstraps the signed binary from the latest GitHub release).
+//
+// The command tree is read with `a4 help <path...>`, not `<path...> --help`:
+// the npm wrapper treats `install ...` as `a4 self install ...`, so
+// `install --help` would print the wrong command's help.
+//
+// Top-level help is filtered by the account's command groups. Since a4
+// 0.57.0, without a signed-in account (as in CI) `a4 --help` leaves out the
+// project install commands (install, update, remove, sdk), though they still
+// run and still answer `a4 help <command>`. So a cited top-level command that
+// is missing from the list is probed by name: it passes only when
+// `a4 help <command>` exits 0 and prints `Usage: a4 <command>`, and its
+// subcommands are then checked as strictly as any other. Unknown commands
+// still fail.
+//
 // Only backtick-quoted citations are checked; prose mentions are not command
 // citations. Exit 1 on any failure.
 
@@ -74,9 +88,9 @@ if (!cliVersion) {
   failures.push(`could not determine CLI version from: ${versionOut}`);
 }
 
-// Command tree: { name, subcommands: Map<string, node> }, walked from --help.
+// Command tree: { subcommands: Map<string, node> }, walked with `a4 help`.
 function subcommandsOf(pathParts) {
-  const { status, output } = runA4([...pathParts, "--help"]);
+  const { status, output } = runA4(["help", ...pathParts]);
   if (status !== 0) return new Map();
   const commandsLine = output.match(/^Commands:$/m);
   if (!commandsLine) return new Map();
@@ -133,6 +147,21 @@ function walk(dir) {
   }
 }
 walk(path.join(repoRoot, "skills"));
+
+// Top-level commands hidden by the account's command groups (see header):
+// add each cited one that `a4 help <command>` confirms exists. Citation
+// tokens match [a-z][a-z0-9-]*, so they are safe to put in a RegExp.
+const citedTopLevel = new Set(
+  [...citations.keys()].map((citation) => citation.split(" ")[1]).filter(Boolean),
+);
+for (const name of [...citedTopLevel].sort()) {
+  if (tree.subcommands.has(name)) continue;
+  const { status, output } = runA4(["help", name]);
+  if (status === 0 && new RegExp(`^Usage: a4 ${name}(?: |$)`, "m").test(output)) {
+    console.log(`a4 ${name}: not in top-level help, confirmed with \`a4 help ${name}\``);
+    tree.subcommands.set(name, buildTree([name], 1));
+  }
+}
 
 for (const [citation, file] of [...citations].sort()) {
   const tokens = citation.split(" ").slice(1);
