@@ -1,9 +1,9 @@
 ---
 name: arete-sandbox
-description: Act from an Arete sandbox, a funded Solana wallet the agent uses without holding its key, inside rules its owner signed. Use when the sandbox_* MCP tools are listed, or when the user asks the agent to choose a sandbox, trade, swap, lend or deposit (Kamino Lend and similar), withdraw, check a sandbox's balance, holdings, rules or history, read program accounts or live views through a sandbox, or explain a sandbox refusal. Covers listing and selecting sandboxes, the discover → preview → invoke loop, program functions that plan a whole action, refusals and retries, sandbox-scoped reads, and a4 sandbox. Do not use for protocol steps, dev environments or app wallets; use arete-protocols or arete-programs for those.
+description: Act from an Arete sandbox, a funded Solana wallet the agent uses without holding its key, inside rules its owner signed. Use when the sandbox_* MCP tools are listed, or when the user asks the agent to choose a sandbox, trade, swap, lend or deposit (Kamino Lend and similar), withdraw, check a sandbox's balance, holdings, rules or history, read program accounts or live views through a sandbox, or explain a sandbox refusal. Covers listing and selecting sandboxes, the discover → preview → invoke loop, program functions that plan a whole action, finding accounts, refusals and retries, sandbox-scoped reads, and a4 sandbox. Do not use for protocol steps, dev environments or app wallets; use arete-protocols or arete-programs for those.
 metadata:
-  version: "1.2.0"
-  min-cli: ">=0.55.0"
+  version: "1.3.0"
+  min-cli: ">=0.61.0"
 ---
 
 # Act from an Arete sandbox
@@ -31,6 +31,9 @@ sandboxes your account has been granted.
 
 Owner operations (rules, grants, pause, revoke) are not available to you.
 When something needs one, say what the owner should change.
+
+In a bug report, include the output of `a4 version` (or the MCP `version`
+tool): the client version and the build of the Arete API it talks to.
 
 ## Choose the sandbox
 
@@ -70,6 +73,8 @@ share the saved choice with `a4 mcp` started in the same folder.
    below) instead of assembling the instructions yourself.
 3. `sandbox_derive` when you need an address: `kind: "pda"` with `programId`
    and `seeds` (computed locally), or `kind: "ata"` with `mint`.
+   `sandbox_find_accounts` finds the account an action starts from (a pool,
+   pair, reserve or vault) by the addresses it holds.
 4. `sandbox_preview` with the action and arguments. It runs every check and
    signs nothing. It returns `pass` with what the wallet would lose, or the
    refusal.
@@ -87,24 +92,47 @@ before you run anything they did not explicitly ask for.
 | `call`     | `{ program, function, input, computeUnitLimit?, computeUnitPriceMicroLamports?, transactionFormat? }`: a program function that plans the whole action     |
 | `withdraw` | `{ lamports, transactionFormat? }`: SOL to the owner's wallet, the only destination                                                                         |
 
-- `invoke` takes 1 to 8 instructions. The sandbox wallet is the only signer.
+- `invoke` takes 1 to 32 instructions, as long as they fit one transaction:
+  4096 bytes and 64 accounts for v1 (the default), 1232 bytes for v0. The
+  sandbox wallet is the only signer.
+- `program`, in `invoke` and `call`, is the base58 program id or a name: the
+  display name, the IDL name (`kamino_lending`, `pump_amm`) or the baseline
+  name. Case, spaces, `-` and `_` are ignored. An unknown or ambiguous name
+  is refused with `sandbox-intent-invalid` and `candidates`: pick one.
 - `call` needs the `invoke` grant. Older a4 releases do not offer it; then
   use `invoke`, following the order in the refusals.
 - Accounts with a `fill` in `sandbox_rules` can be left out (see Finding
   accounts below).
-- Pass u64 and u128 amounts as decimal strings, in the smallest unit.
+- In `invoke`, pass u64 and u128 amounts as decimal strings, in the smallest
+  unit.
 
 ## Functions
 
 Some programs need more than one instruction for one action, in an exact
 order, with setup that depends on live state. `sandbox_rules` lists a
-program's `functions` (`name` and `summary`) when Arete can plan them: it
-reads the chain, emits every instruction in the right order, fills the
-accounts and fills the sandbox wallet in as the signer. Every instruction a
-function plans is still checked against the rules, like an `invoke`.
+program's `functions` when Arete can plan them: it reads the chain, emits
+every instruction in the right order, fills the accounts and fills the
+sandbox wallet in as the signer. Every instruction a function plans is
+still checked against the rules, like an `invoke`. Functions are not only
+for Kamino Lend: check `functions` on every program you use.
 
-Kamino Lend (`KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD`) is the main case.
-Deposit with:
+Each function has a `name`, a `summary` and an `input` schema. Read the
+schema instead of guessing the input:
+
+- `fields`: each with `name`, `type` (`pubkey`, `amount`, `bool`, `string`,
+  an integer width or `enum`) and `required`, and where they apply `fill`
+  (`wallet`: leave it out), `units` (the token a `ui` amount is in),
+  `default`, `values` (literals besides the type, such as `"max"`) and
+  `variants` (the strings an `enum` takes).
+- `unknownFields`: `refused` (a field the schema does not list is an error)
+  or `ignored`.
+
+An `amount` is `{ "ui": "0.1" }` in whole units of the field's `units`
+token, `{ "raw": "100000000" }` in base units, or a bare integer in base
+units. A bare decimal string such as `"0.1"` is refused, like any input that
+does not match the schema (`sandbox-function-input-invalid`).
+
+Kamino Lend (`KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD`) deposit:
 
 ```json
 {
@@ -112,22 +140,27 @@ Deposit with:
   "args": {
     "program": "KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD",
     "function": "transactions.obligation.deposit",
-    "input": { "reserve": "<reserve address>", "amount": "0.1" }
+    "input": { "reserve": "<reserve address>", "amount": { "ui": "0.1" } }
   }
 }
 ```
 
 - `transactions.obligation.deposit`, `.withdraw`, `.borrow`, `.repay` take
-  `reserve`, `amount` and, optionally, `obligation` (an address; default
-  the owner's first obligation in the reserve's market).
-- `amount` is in whole units of the reserve's token (`"0.1"` SOL), unlike
-  `invoke`. `withdraw` and `repay` also take `"max"`.
+  `reserve` and `amount` (`units`: the reserve's token); `withdraw` and
+  `repay` also take `"max"`. The optional fields are in `input`.
 - A deposit creates the obligation, the user metadata and the reserve's
   farm state when they are missing, refreshes the reserves and the
   obligation, and wraps SOL from the wallet for a SOL reserve. It works for
   reserves with and without farms.
 - Preview with `action: "call"` first, as with any action. The preview's
   `plan` names the function and the slot it read.
+
+A function needs every instruction it builds, inner instructions (CPIs)
+included, to be allowed by the rules. `sandbox_rules` adds
+`missingInstructions` to a function that needs one they do not allow, and a
+call to it is refused with `sandbox-function-instruction-not-allowlisted`
+before anything is planned. Only the owner can allow it; until then use
+another function or an `invoke` of allowed instructions.
 
 If you must use `invoke` for Kamino Lend, prefer the `...V2` instructions
 (`depositReserveLiquidityAndObligationCollateralV2`,
@@ -164,13 +197,21 @@ An account with no `fill` has a `lookup`. Use it in this order:
    action if it doesn't exist.
 3. `heldBy`: read an account of that type with `program_read_account` and
    take the address from the named field.
-4. `accountType`: an account of that type. Take it from what you already
+4. `search`: the account can be searched for. Call `sandbox_find_accounts`
+   with `program`, the search's `type` and `fields` holding the addresses
+   you know (`a4 sandbox accounts <program> <Type> --field k=v [--any-order]`).
+   It finds the account an action starts from (a pool, pair, reserve or
+   vault) by the addresses it holds, using the sandbox's chain. Pools with
+   zero liquidity come last, and size-ranked types such as Kamino vaults
+   come largest first. Pass `anyOrder: true` when either field may hold
+   either address (a DLMM pair's two mints).
+5. `accountType`: an account of that type. Take it from what you already
    know (a quote, an API, an earlier transaction), from a stack you can read
-   through the sandbox, or search the program with your own RPC:
-   `getProgramAccounts` with a memcmp for `discriminator` at offset 0 and one
-   for each `findBy` field you know (for a PumpSwap `Pool`, `base_mint` at
-   offset 43).
-5. Otherwise follow `how`: the protocol's docs, SDK or API.
+   through the sandbox, or, as a fallback, search the program with your own
+   RPC: `getProgramAccounts` with a memcmp for `discriminator` at offset 0
+   and one for each `findBy` field you know (for a PumpSwap `Pool`,
+   `base_mint` at offset 43).
+6. Otherwise follow `how`: the protocol's docs, SDK or API.
 
 `unlocks` lists what Arete fills once you give the account, so give the ones
 that unlock the most first.
@@ -181,11 +222,11 @@ given. `accountGuidance` has one entry per missing account: its `lookup`, or
 `waitingOn` for an account Arete will fill. Give the first group and preview
 again.
 
-Accounts that depend on live state or on the direction of a trade (tick
-arrays, input and output vaults) stay yours. Take them from the venue's
-quote or API just before you act, or use a Jupiter route, whose
-`/swap-instructions` lists every account. Arete chooses Meteora DLMM bin
-arrays itself, so leave them out.
+Arete resolves Orca Whirlpool and Raydium CLMM tick arrays and Meteora DLMM
+bin arrays itself, from live state, at preview and at invoke: leave them
+out. Other accounts that depend on live state or on the direction of a trade
+(which vault is the input) stay yours. Take them from the venue's quote or
+API just before you act, or use a Jupiter route (see Swaps).
 
 ## Swaps
 
@@ -193,14 +234,17 @@ There is no swap action. A swap is an `invoke` of the instructions that make
 it, checked like any other:
 
 1. Resolve the venue.
-   - A venue's own instructions, when you know the pool: PumpSwap (pump-amm)
-     `buy`/`sell` for a coin that has left its Pump.fun bonding curve,
-     Pump.fun `buy`/`sell` on the curve, or a DEX's own swap instruction.
-     Prefer this when it is enough.
-   - A Jupiter route, for the best price across venues: quote with Jupiter's
-     Swap API (about 50 `maxAccounts`, so it fits a v1 transaction: 64
-     accounts, no lookup tables), then `/swap-instructions` with the sandbox
-     wallet as the user. Routes fill only through venues the rules enable.
+   - A venue's own instructions, when you know the pool: Pump.fun
+     `buy`/`sell` on the bonding curve, PumpSwap (pump-amm) `buy`/`sell`
+     for a Pump.fun coin that has graduated, or a DEX's own swap
+     instruction. Prefer this when it is enough.
+   - A Jupiter route, for the best price across venues. When the rules
+     allow one, `sandbox_rules` carries a `jupiterSwap` guide: `buildUrl`
+     (Jupiter Swap API v2 `/build`), a `query` with the sandbox wallet as
+     taker and payer, `transactionVersion=1`, `maxAccounts=50`,
+     `wrapAndUnwrapSol=true` and `dexes` limited to the venues the rules
+     allow, and `steps`. Follow it instead of a quote and
+     `/swap-instructions`, and send the route as one `invoke`.
 2. Write the `invoke`: each instruction named as `sandbox_rules` lists it
    (Jupiter's swap is one of its listed instructions, such as `route_v2`),
    `args` decoded from the instruction data with the IDL types
@@ -227,6 +271,8 @@ may have run. Before anything else, call `sandbox_action` with the
 - it was refused: fix the request and retry with a new key;
 - no action has the key: retry with the same key.
 
+From a shell, `a4 sandbox action --idempotency-key <key>` looks it up.
+
 ## Refusals
 
 Every `sandbox_*` error has `code`, `retryable` and a `hint`; a refusal also
@@ -248,9 +294,25 @@ names the `rule` and what triggered it (`program`, `instruction`, `mint`,
   its position. Use the program's function (`call`) or the v2 instruction.
 - `sandbox-function-not-allowlisted`: the owner's rules name other functions
   for that program; use those, or `invoke`.
+- `sandbox-function-instruction-not-allowlisted`: the function needs an
+  instruction the rules do not allow (`missingInstructions`); use another
+  function or `invoke` until the owner allows it.
 - `sandbox-guard-trial-failed`: the transaction fails when run; check
   accounts and amounts against `sandbox_rules` and `sandbox_holdings`.
 - `sandbox-paused`: stop and tell the user; only the owner can resume.
+
+A refused `call` reports `stages` (each stage it passed, then the one that
+refused it), `failedStage` and `plan` (as far as it got). Follow its `hint`:
+it names the a4 command or MCP tool to run. Before anything is built, the
+`plan` stage checks the chain and refuses:
+
+| Code                                      | What to do                                   |
+| ----------------------------------------- | -------------------------------------------- |
+| `sandbox-plan-insufficient-token-balance` | Fund or wrap the token first                 |
+| `sandbox-plan-account-not-initialized`    | Run what `createdBy` names first             |
+| `sandbox-plan-pool-no-liquidity`          | Pick another pool                            |
+| `sandbox-plan-seat-not-claimed`           | Run `transactions.market.setUpTrader` first  |
+| `sandbox-plan-amount-below-minimum`       | Raise the amount to at least `minimumAmount` |
 
 Never try to get funds to an address the rules do not allow, change an
 authority or delegate, or split an action to slip under a limit.
@@ -289,9 +351,12 @@ a4 get <Entity>/<view> --stack <stack> --sandbox <id|name> --limit 1
 a4 stream <Entity>/<view> --stack <stack> --sandbox <id|name>
 ```
 
-## History and holdings
+## History, holdings and the shell
 
-`sandbox_history` and `sandbox_holdings` are read-only. From a shell:
+`sandbox_history` and `sandbox_holdings` are read-only. Without a stdio MCP
+server, the same loop runs in one-shot commands that send the same actions
+and return the same results and refusals (`--json` prints them as the tools
+do):
 
 ```bash
 a4 sandbox list                            # granted sandboxes; * marks the one in use
@@ -299,9 +364,22 @@ a4 sandbox history --json                  # newest first, 20 per page
 a4 sandbox history --status landed --since 24h --json
 a4 sandbox holdings --json
 a4 sandbox rules show --json
+a4 sandbox accounts <program> <Type> --field <field>=<address> [--any-order]
+a4 sandbox preview --call <program> <function> --input <json|@file>
+a4 sandbox preview --invoke <json|@file>
+a4 sandbox preview --withdraw <lamports>
+a4 sandbox invoke --call <program> <function> --input <json|@file>   # same flags as preview
+a4 sandbox action --idempotency-key <key>
+a4 version                                 # client version and API build, for bug reports
 ```
 
-Each takes `--sandbox <id|name>` for that command alone.
+Each `a4 sandbox` command takes `--sandbox <id|name>` for that command
+alone.
+
+Holdings list SOL, tokens and program positions: decoded Kamino and Save
+obligations, volume accumulators and Kamino vault shares (`shareOf`).
+`reclaimableRent` says which instruction returns an account's rent, and
+appears only where the rules can allow that instruction.
 
 Each history item has its status, decoded instructions, the Anchor events the
 programs emitted, SOL and token changes and the accounts touched. Refusals
@@ -315,5 +393,6 @@ owner drafting rules by hand. Nothing is sent.
 
 - https://docs.arete.run/sandboxes/overview/
 - https://docs.arete.run/sandboxes/actions/
+- https://docs.arete.run/sandboxes/accounts/
 - https://docs.arete.run/sandboxes/errors/
 - https://docs.arete.run/sandboxes/read-scope/
