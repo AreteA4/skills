@@ -116,6 +116,10 @@ sandbox wallet in as the signer. Every instruction a function plans is
 still checked against the rules, like an `invoke`. Functions are not only
 for Kamino Lend: check `functions` on every program you use.
 
+In the signed rules, a program with no `functions` field allows every
+function installed for it; `functions: []` allows none; a list allows
+exactly those.
+
 Each function has a `name`, a `summary` and an `input` schema. Read the
 schema instead of guessing the input:
 
